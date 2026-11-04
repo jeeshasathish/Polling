@@ -1,0 +1,262 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — VoteHub{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 2rem;">
+  <span class="eyebrow" id="time-greeting-eyebrow">Enterprise Hub</span>
+  <h1 id="welcome-greeting-title">Welcome Back, {{ user.username }}</h1>
+  <p class="subtitle">Access active surveys, monitor response metrics, and manage settings.</p>
+</div>
+
+<!-- Gamification Stats Banner -->
+<div class="game-progress-card reveal reveal-delay-1 float-animated">
+  <div class="game-trophy" style="display:flex; align-items:center; justify-content:center;">
+    <i data-lucide="award" style="width: 32px; height: 32px; color: var(--warning);"></i>
+  </div>
+  <div class="game-progress-info">
+    <div class="game-progress-row">
+      <span>Participation Level 3</span>
+      <span id="score-text">240 / 300 XP</span>
+    </div>
+    <div class="game-progress-bar">
+      <div class="game-progress-fill" style="width: 80%;"></div>
+    </div>
+  </div>
+  <div style="text-align: right; min-width: 120px; display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+    <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-sec); display: block; text-transform: uppercase;">Badges</span>
+    <div style="display:flex; gap:6px;">
+      <i data-lucide="zap" style="width: 18px; height: 18px; color: var(--accent);"></i>
+      <i data-lucide="check-square" style="width: 18px; height: 18px; color: var(--primary);"></i>
+      <i data-lucide="award" style="width: 18px; height: 18px; color: var(--warning);"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard Summary Grid -->
+<div class="dashboard-summary-grid reveal reveal-delay-1">
+  <div class="summary-card card-premium-hover">
+    <div class="summary-icon" style="color: var(--primary); display:flex; align-items:center; justify-content:center;">
+      <i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Total Polls</h4>
+      <p>{{ total_polls }}</p>
+    </div>
+  </div>
+  <div class="summary-card card-premium-hover">
+    <div class="summary-icon" style="color: var(--success); display:flex; align-items:center; justify-content:center;">
+      <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Active Polls</h4>
+      <p>{{ active_polls }}</p>
+    </div>
+  </div>
+  <div class="summary-card card-premium-hover">
+    <div class="summary-icon" style="color: var(--danger); display:flex; align-items:center; justify-content:center;">
+      <i data-lucide="archive" style="width: 24px; height: 24px;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Closed Polls</h4>
+      <p>{{ closed_polls }}</p>
+    </div>
+  </div>
+  <div class="summary-card card-premium-hover">
+    <div class="summary-icon" style="color: var(--purple); display:flex; align-items:center; justify-content:center;">
+      <i data-lucide="check-circle-2" style="width: 24px; height: 24px;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Votes Cast</h4>
+      <p>{{ total_votes_sum }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Dashboard split layout -->
+<div class="detail-layout-grid reveal reveal-delay-2" style="margin-top: 1.5rem;">
+  <!-- Left Side: Poll list -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <div class="glass-card" style="padding: 2.25rem; margin-bottom: 0;">
+      <div class="dash-head" style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <h3 style="font-family: var(--font-head); font-size: 1.25rem; font-weight: 800; color: var(--text);">
+          Recently Published Polls
+        </h3>
+        <a href="{% url 'polls:index' %}" class="btn-outline" style="font-size: 0.8rem; padding: 6px 14px;">
+          View All &rarr;
+        </a>
+      </div>
+
+      {% if latest_questions %}
+        <div class="polls-grid">
+          {% for question in latest_questions %}
+            <a href="{% url 'polls:detail' question.id %}" class="poll-item" id="poll-{{ question.id }}">
+              <div class="poll-item-icon" style="display:inline-flex; align-items:center; justify-content:center;">
+                {% if forloop.counter == 1 %}<i data-lucide="flame" style="width:20px; height:20px; color:var(--warning);"></i>
+                {% elif forloop.counter == 2 %}<i data-lucide="zap" style="width:20px; height:20px; color:var(--accent);"></i>
+                {% else %}<i data-lucide="star" style="width:20px; height:20px; color:var(--primary);"></i>
+                {% endif %}
+              </div>
+              <div class="poll-item-text">
+                <h3>{{ question.question_text }}</h3>
+                <p>
+                  <span class="badge {% if question.id|divisibleby:3 %}badge-tech{% elif question.id|divisibleby:2 %}badge-sports{% else %}badge-edu{% endif %}" style="padding: 2px 8px; font-size: 0.65rem; margin-right: 6px;">
+                    {% if question.id|divisibleby:3 %}Technology{% elif question.id|divisibleby:2 %}Sports{% else %}Education{% endif %}
+                  </span>
+                  Published {{ question.pub_date|timesince }} ago
+                </p>
+              </div>
+              <span class="poll-item-arrow" style="display:inline-flex; align-items:center; color:var(--text-sec);"><i data-lucide="chevron-right" style="width:16px; height:16px;"></i></span>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-icon">🗳️</span>
+          <h2>No polls are available.</h2>
+          <p>Check back later — new polls are added regularly by our moderators.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Side: AI Assistant & Leaderboard -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <!-- AI Panel Card -->
+    <div class="glass-card ai-panel-card card-premium-hover" style="padding: 1.75rem;">
+      <span class="ai-badge" style="display:inline-flex; align-items:center; gap:4px;">
+        <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> AI Co-Pilot
+      </span>
+      <h3 style="font-family: var(--font-head); font-size: 1.1rem; font-weight: 800; margin: 10px 0 6px;">Need ideas?</h3>
+      <p style="font-size: 0.82rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 1.25rem;">
+        Generate survey topics, cover descriptions, and matching multiple-choice answers using AI recommendations.
+      </p>
+      
+      <button class="btn-primary" style="width: 100%; font-size: 0.82rem; padding: 10px; background: var(--purple);" onclick="toggleAiModal(true)">
+        <i data-lucide="wand-2" style="width: 14px; height: 14px; margin-right:4px; vertical-align:middle;"></i> Open AI Poll Builder
+      </button>
+
+      <div class="ai-suggest-chips">
+        <span class="ai-chip" onclick="quickAiSuggest('technology')">Tech Trends</span>
+        <span class="ai-chip" onclick="quickAiSuggest('sports')">Sports Fan Feedback</span>
+        <span class="ai-chip" onclick="quickAiSuggest('health')">Workplace Health</span>
+      </div>
+    </div>
+
+    <!-- Leaderboard Card -->
+    <div class="glass-card card-premium-hover" style="padding: 1.75rem;">
+      <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 800; margin-bottom: 1rem;">
+        Weekly Contributors
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="display:flex; align-items:center; gap:4px;"><i data-lucide="medal" style="width:14px; height:14px; color:var(--warning);"></i> admin</span>
+          <strong>480 XP</strong>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="display:flex; align-items:center; gap:4px;"><i data-lucide="medal" style="width:14px; height:14px; color:var(--text-sec);"></i> saas_tester</span>
+          <strong>340 XP</strong>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+          <span style="display:flex; align-items:center; gap:4px;"><i data-lucide="medal" style="width:14px; height:14px; color:var(--warning);"></i> survey_king</span>
+          <strong>290 XP</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Builder Modal Popup -->
+<div class="ai-wizard-modal" id="ai-builder-modal" style="display: none;">
+  <div class="ai-wizard-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <span class="ai-badge" style="display:inline-flex; align-items:center; gap:4px;">
+        <i data-lucide="sparkles" style="width:14px; height:14px;"></i> Interactive AI Builder
+      </span>
+      <button onclick="toggleAiModal(false)" style="background:none; border:none; font-size:1.25rem; cursor:pointer; color:var(--text-sec);">&times;</button>
+    </div>
+    <h3>AI Topic Recommendation</h3>
+    <p style="font-size:0.82rem; color:var(--text-sec); margin-bottom: 1.5rem;">Select a topic category to draft questions and answers instantly.</p>
+    
+    <div class="form-field">
+      <label for="ai-category-select">Select Category</label>
+      <select id="ai-category-select">
+        <option value="technology">Technology & Innovations</option>
+        <option value="business">Business & SaaS</option>
+        <option value="lifestyle">Lifestyle & Wellness</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" style="width:100%; background:var(--purple);" onclick="generateAiDraft()">
+      <i data-lucide="wand-2" style="width:14px; height:14px; margin-right:4px; vertical-align:middle;"></i> Generate Draft Recommendation
+    </button>
+
+    <div id="ai-draft-output" style="margin-top: 1.5rem; display: none; padding: 12px; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-xs); font-size:0.85rem;">
+      <div style="font-weight: 700; color: var(--purple); margin-bottom: 4px;">Recommended Question:</div>
+      <div id="ai-draft-q" style="font-weight: 600; margin-bottom: 8px;"></div>
+      <div style="font-weight: 700; color: var(--purple); margin-bottom: 4px;">Suggested Choices:</div>
+      <ul id="ai-draft-choices" style="list-style: square; padding-left: 18px;"></ul>
+      <p style="font-size:0.75rem; color:var(--text-sec); margin-top:10px; font-style:italic;">
+        Note: Admin users can copy these drafts to the backend admin panel.
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Greeting based on time
+  document.addEventListener("DOMContentLoaded", function() {
+    const hour = new Date().getHours();
+    let greeting = "Good morning";
+    if (hour >= 12 && hour < 17) {
+      greeting = "Good afternoon";
+    } else if (hour >= 17) {
+      greeting = "Good evening";
+    }
+    document.getElementById("time-greeting-eyebrow").textContent = greeting + " — Enterprise Hub";
+  });
+
+  // Toggle AI Modal
+  function toggleAiModal(show) {
+    const modal = document.getElementById('ai-builder-modal');
+    modal.style.display = show ? 'flex' : 'none';
+  }
+
+  // AI draft recommendations
+  const aiDrafts = {
+    technology: {
+      q: "What is your primary choice for web app hosting in 2026?",
+      choices: ["AWS Cloud Engine", "Vercel / Next.js hosting", "Self-hosted Docker", "Google Cloud Run"]
+    },
+    business: {
+      q: "Which pricing model yields the highest customer retention?",
+      choices: ["Flat Monthly Subscriptions", "Usage-based billing", "Freemium tiered models", "Hybrid annual plans"]
+    },
+    lifestyle: {
+      q: "What is the optimal weekly hybrid work pattern for productivity?",
+      choices: ["2 Days Office / 3 Days Remote", "Fully Remote", "3 Days Office / 2 Days Remote", "4 Days Office / 1 Day Remote"]
+    }
+  };
+
+  function quickAiSuggest(category) {
+    toggleAiModal(true);
+    document.getElementById('ai-category-select').value = category;
+    generateAiDraft();
+  }
+
+  function generateAiDraft() {
+    const cat = document.getElementById('ai-category-select').value;
+    const draft = aiDrafts[cat] || aiDrafts['technology'];
+    
+    document.getElementById('ai-draft-q').textContent = draft.q;
+    document.getElementById('ai-draft-choices').innerHTML = draft.choices.map(c => `<li>${c}</li>`).join('');
+    
+    document.getElementById('ai-draft-output').style.display = 'block';
+    showToast('AI draft generated successfully!', 'success');
+  }
+</script>
+{% endblock %}

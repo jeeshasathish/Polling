@@ -1,0 +1,183 @@
+{% extends "polls/base_admin.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard — VoteHub{% endblock %}
+{% block breadcrumb %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Welcome Banner ── -->
+<div class="reveal-animated" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: var(--radius); padding: 2rem 2.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; overflow: hidden; position: relative;">
+  <!-- Glow backdrop -->
+  <div style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:radial-gradient(circle, rgba(79,70,229,0.25) 0%, transparent 70%); pointer-events:none;"></div>
+
+  <div style="position: relative; z-index: 1;">
+    <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: rgba(165,180,252,0.8); margin-bottom: 0.5rem;" id="admin-time-label">Good morning</p>
+    <h1 style="font-family: var(--font-head); font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; color: #fff; margin-bottom: 0.4rem;">
+      Welcome back, {{ user.first_name|default:"Admin" }}
+    </h1>
+    <p style="color: rgba(255,255,255,0.5); font-size: 0.88rem;">
+      {% if user.is_superuser %}Super Admin{% else %}Admin{% endif %} · VoteHub Control Panel
+    </p>
+  </div>
+</div>
+
+<!-- ── Stats Grid ── -->
+<div class="admin-stats-grid" style="margin-bottom: 2rem;">
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color: #4F46E5; --stat-bg: rgba(79,70,229,0.08); animation-delay: 0.05s;">
+    <div class="admin-stat-icon">
+      <i data-lucide="bar-chart-3" style="width:22px;height:22px;color:#4F46E5;"></i>
+    </div>
+    <div>
+      <div class="admin-stat-value" data-count="{{ total_polls }}">{{ total_polls }}</div>
+      <div class="admin-stat-label">Total Polls</div>
+    </div>
+    <div class="admin-stat-trend" style="color: var(--success);">
+      <i data-lucide="trending-up" style="width:12px;height:12px;"></i> All Time
+    </div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color: #22C55E; --stat-bg: rgba(34,197,94,0.08); animation-delay: 0.12s;">
+    <div class="admin-stat-icon">
+      <i data-lucide="zap" style="width:22px;height:22px;color:#22C55E;"></i>
+    </div>
+    <div>
+      <div class="admin-stat-value">{{ active_polls }}</div>
+      <div class="admin-stat-label">Active Now</div>
+    </div>
+    <div class="admin-stat-trend" style="color: #22C55E;">
+      <i data-lucide="circle" style="width:8px;height:8px;fill:#22C55E;"></i> Live
+    </div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color: #F59E0B; --stat-bg: rgba(245,158,11,0.08); animation-delay: 0.19s;">
+    <div class="admin-stat-icon">
+      <i data-lucide="clock" style="width:22px;height:22px;color:#F59E0B;"></i>
+    </div>
+    <div>
+      <div class="admin-stat-value">{{ upcoming_polls }}</div>
+      <div class="admin-stat-label">Scheduled</div>
+    </div>
+    <div class="admin-stat-trend" style="color: #F59E0B;">
+      <i data-lucide="calendar" style="width:12px;height:12px;"></i> Upcoming
+    </div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color: #EF4444; --stat-bg: rgba(239,68,68,0.08); animation-delay: 0.26s;">
+    <div class="admin-stat-icon">
+      <i data-lucide="archive" style="width:22px;height:22px;color:#EF4444;"></i>
+    </div>
+    <div>
+      <div class="admin-stat-value">{{ closed_polls }}</div>
+      <div class="admin-stat-label">Closed Polls</div>
+    </div>
+    <div class="admin-stat-trend" style="color: var(--text-sec);">
+      <i data-lucide="minus" style="width:12px;height:12px;"></i> Ended
+    </div>
+  </div>
+
+
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color: #06B6D4; --stat-bg: rgba(6,182,212,0.08); animation-delay: 0.40s;">
+    <div class="admin-stat-icon">
+      <i data-lucide="check-circle-2" style="width:22px;height:22px;color:#06B6D4;"></i>
+    </div>
+    <div>
+      <div class="admin-stat-value">{{ total_votes }}</div>
+      <div class="admin-stat-label">Total Votes Cast</div>
+    </div>
+    <div class="admin-stat-trend" style="color: #06B6D4;">
+      <i data-lucide="trending-up" style="width:12px;height:12px;"></i> All Time
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Full-Width Layout ── -->
+<div style="margin-bottom: 2rem;">
+
+  <!-- Recent Polls Table -->
+  <div class="data-table-wrap reveal-animated" style="animation-delay: 0.1s;">
+    <div class="data-table-header">
+      <span class="data-table-title">
+        <i data-lucide="list" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:var(--primary);"></i>
+        Recent Polls
+      </span>
+      <a href="{% url 'polls:index' %}" class="btn-outline" style="font-size: 0.78rem; padding: 5px 12px;">
+        View All →
+      </a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Published</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for poll in recent_polls %}
+        <tr>
+          <td style="font-weight:600; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            {{ poll.question_text }}
+          </td>
+          <td style="color:var(--text-sec); white-space:nowrap;">{{ poll.pub_date|timesince }} ago</td>
+          <td>
+            {% if poll.id|divisibleby:4 %}
+              <span class="badge" style="background:rgba(239,68,68,0.08);color:#EF4444;padding:3px 9px;font-size:0.65rem;">Closed</span>
+            {% else %}
+              <span class="badge" style="background:rgba(34,197,94,0.08);color:#22C55E;padding:3px 9px;font-size:0.65rem;">Active</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'polls:detail' poll.id %}" style="color:var(--primary);font-size:0.78rem;font-weight:600;">View →</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" style="text-align:center;color:var(--text-sec);padding:2rem;">No polls yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ── Quick Actions ── -->
+<div class="reveal-animated" style="animation-delay: 0.15s; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem 2rem;">
+  <h3 style="font-family: var(--font-head); font-size: 0.95rem; font-weight: 800; margin-bottom: 1.25rem; color: var(--text);">
+    <i data-lucide="bolt" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:var(--warning);"></i>
+    Quick Actions
+  </h3>
+  <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a href="{% url 'polls:index' %}" class="btn-outline" style="font-size:0.82rem; padding: 0.6rem 1.25rem;">
+      <i data-lucide="list" style="width:14px;height:14px;"></i> Browse All Polls
+    </a>
+    <a href="{% url 'polls:index' %}?filter=active" class="btn-outline" style="font-size:0.82rem; padding: 0.6rem 1.25rem;">
+      <i data-lucide="zap" style="width:14px;height:14px;"></i> Active Polls
+    </a>
+    <a href="{% url 'polls:profile' %}" class="btn-outline" style="font-size:0.82rem; padding: 0.6rem 1.25rem;">
+      <i data-lucide="user" style="width:14px;height:14px;"></i> My Profile
+    </a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const h = new Date().getHours();
+    const el = document.getElementById('admin-time-label');
+    if (el) {
+      if (h < 12) el.textContent = 'Good morning';
+      else if (h < 17) el.textContent = 'Good afternoon';
+      else el.textContent = 'Good evening';
+    }
+    lucide.createIcons();
+  });
+</script>
+{% endblock %}

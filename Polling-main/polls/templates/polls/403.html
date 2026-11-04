@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>403 Forbidden — VoteHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'polls/style.css' %}" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>(function(){ document.documentElement.setAttribute('data-theme', localStorage.getItem('theme')||'light'); })();</script>
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg);">
+
+  <div style="text-align: center; max-width: 500px; padding: 3rem 2rem; animation: fadeInUp 0.5s ease both;">
+
+    <!-- Icon -->
+    <div style="width: 96px; height: 96px; border-radius: 24px; background: rgba(239,68,68,0.08); border: 2px solid rgba(239,68,68,0.18); display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+      <i data-lucide="shield-x" style="width:44px;height:44px;color:var(--danger);"></i>
+    </div>
+
+    <!-- Error Code -->
+    <div style="font-family: var(--font-head); font-size: 5rem; font-weight: 900; color: var(--danger); opacity: 0.15; line-height: 1; margin-bottom: 0.5rem;">403</div>
+
+    <h1 style="font-family: var(--font-head); font-size: 1.75rem; font-weight: 800; color: var(--text); margin-bottom: 0.75rem;">Access Forbidden</h1>
+    <p style="font-size: 0.95rem; color: var(--text-sec); line-height: 1.6; margin-bottom: 2rem;">
+      You don't have permission to access this page.
+      {% if required_role %}
+        This area requires <strong style="color:var(--danger);">{{ required_role }}</strong> privileges.
+      {% endif %}
+    </p>
+
+    <!-- Role info -->
+    <div style="background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 2rem; text-align: left;">
+      <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-sec); margin-bottom: 0.75rem;">Your current access level</div>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #fff;">
+          {{ request.user.username|first|upper }}
+        </div>
+        <div>
+          <div style="font-weight: 700; color: var(--text);">{{ request.user.username }}</div>
+          <div style="font-size: 0.75rem; color: var(--text-sec);">
+            {% if request.user.is_superuser %}Super Admin
+            {% elif request.user.is_staff %}Admin
+            {% else %}Voter{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+      <a href="javascript:history.back()" class="btn-outline" style="font-size: 0.85rem; padding: 0.7rem 1.5rem;">
+        <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Go Back
+      </a>
+      {% if request.user.is_staff or request.user.is_superuser %}
+        <a href="{% url 'polls:admin_dashboard' %}" class="btn-primary" style="font-size: 0.85rem; padding: 0.7rem 1.5rem;">
+          <i data-lucide="layout-dashboard" style="width:14px;height:14px;"></i> Admin Dashboard
+        </a>
+      {% else %}
+        <a href="{% url 'polls:user_dashboard' %}" class="btn-primary" style="font-size: 0.85rem; padding: 0.7rem 1.5rem;">
+          <i data-lucide="layout-dashboard" style="width:14px;height:14px;"></i> My Dashboard
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() { lucide.createIcons(); });
+  </script>
+</body>
+</html>

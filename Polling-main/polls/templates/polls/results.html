@@ -1,0 +1,251 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Live Analytics — {{ question.question_text }}{% endblock %}
+
+{% block content %}
+<div class="page-header reveal">
+  <span class="eyebrow">Real-Time Insights</span>
+  <h1>{{ question.question_text }}</h1>
+  <p class="subtitle">Detailed SaaS metrics and choice distributions for this question.</p>
+</div>
+
+<!-- Stats row -->
+<div class="stats-row reveal reveal-delay-1">
+  <div class="stat-chip float-animated">
+    <div class="stat-num" id="total-votes">0</div>
+    <div class="stat-label">Total Votes</div>
+  </div>
+  <div class="stat-chip float-animated">
+    <div class="stat-num" style="color: var(--success);" id="leading-pct">0%</div>
+    <div class="stat-label">Leader Percent</div>
+  </div>
+  <div class="stat-chip float-animated">
+    <div class="stat-num" style="color: var(--purple);" id="leading-choice">None</div>
+    <div class="stat-label">Leading Option</div>
+  </div>
+</div>
+
+<!-- Main Results & Analytics Section split -->
+<div class="detail-layout-grid reveal reveal-delay-2" style="margin-top: 1.5rem;">
+  <!-- Left Side: Table & Bars -->
+  <div class="glass-card" style="padding: 2.25rem; margin-bottom: 0;">
+    <h3 class="choices-title" style="margin-bottom: 1.5rem;">Response Distribution</h3>
+    
+    <div class="results-list" id="results-list" style="margin-bottom: 2rem;">
+      {% if question.choice_set.all %}
+        {% for choice in question.choice_set.all %}
+          <div class="result-item" data-votes="{{ choice.votes }}" data-label="{{ choice.choice_text }}">
+            <div class="result-item-header">
+              <span class="result-item-label" style="display:inline-flex; align-items:center; gap:4px;">
+                {% if forloop.first %}<i data-lucide="medal" style="width:16px; height:16px; color:var(--warning);"></i>
+                {% elif forloop.counter == 2 %}<i data-lucide="medal" style="width:16px; height:16px; color:var(--text-sec);"></i>
+                {% elif forloop.counter == 3 %}<i data-lucide="medal" style="width:16px; height:16px; color:var(--accent);"></i>
+                {% else %}<span style="font-weight:900; margin-right:4px;">·</span>
+                {% endif %}
+                {{ choice.choice_text }}
+              </span>
+              <span class="result-item-votes">
+                <strong class="pct-value">0%</strong> ({{ choice.votes }} vote{{ choice.votes|pluralize }})
+              </span>
+            </div>
+            <div class="result-bar-track">
+              <div class="result-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-center" style="color: var(--text-sec);">No choices have been registered for this question yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- Actions & Exports drawer -->
+    <div class="actions-footer" style="border-top:1px solid var(--border); padding-top:1.5rem;">
+      <button class="btn-vote" onclick="exportCSV()" style="display:inline-flex; align-items:center; gap:6px;">
+        <i data-lucide="download" style="width: 15px; height: 15px;"></i> Export to CSV
+      </button>
+      <button class="btn-outline" onclick="exportExcel()" style="display:inline-flex; align-items:center; gap:6px;">
+        <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i> Export to Excel
+      </button>
+      <button class="btn-outline" onclick="window.print()" style="display:inline-flex; align-items:center; gap:6px;">
+        <i data-lucide="printer" style="width: 15px; height: 15px;"></i> Printable Report
+      </button>
+      <a href="{% url 'polls:detail' question.id %}" class="btn-outline" style="border-color:rgba(79,70,229,0.25); display:inline-flex; align-items:center; gap:6px;">
+        <i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Cast Vote
+      </a>
+    </div>
+  </div>
+
+  <!-- Right Side: Chart.js Interactive Graphs -->
+  <div class="detail-sidebar">
+    <div class="glass-card chart-box">
+      <h4>Choice Distribution Chart</h4>
+      <div class="chart-container-inner">
+        <canvas id="doughnut-chart-canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="glass-card chart-box">
+      <h4>Hourly Interaction Flow</h4>
+      <div class="chart-container-inner">
+        <canvas id="line-chart-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let totalVotes = 0;
+  const choiceLabels = [];
+  const choiceVotes = [];
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const items = document.querySelectorAll('.result-item');
+    let maxVotes = -1;
+    let leadingLabel = 'None';
+
+    // Calculate total votes and prepare charts data
+    items.forEach(item => {
+      const v = parseInt(item.dataset.votes) || 0;
+      const lbl = item.dataset.label;
+      
+      choiceLabels.push(lbl);
+      choiceVotes.push(v);
+      
+      totalVotes += v;
+      if (v > maxVotes && v > 0) {
+        maxVotes = v;
+        leadingLabel = lbl;
+      }
+    });
+
+    // Update stats chips
+    document.getElementById('total-votes').textContent = totalVotes;
+    
+    const leadingPct = totalVotes > 0 ? Math.round((maxVotes / totalVotes) * 100) : 0;
+    document.getElementById('leading-pct').textContent = leadingPct + '%';
+    
+    if (leadingLabel !== 'None') {
+      const words = leadingLabel.split(' ');
+      document.getElementById('leading-choice').textContent = 
+        words.slice(0, 2).join(' ') + (words.length > 2 ? '…' : '');
+    }
+
+    // Set bar widths and text values
+    items.forEach(item => {
+      const v = parseInt(item.dataset.votes) || 0;
+      const pct = totalVotes > 0 ? Math.round((v / totalVotes) * 100) : 0;
+      
+      const fill = item.querySelector('.result-bar-fill');
+      const pctText = item.querySelector('.pct-value');
+      
+      if (fill) {
+        setTimeout(() => {
+          fill.style.width = pct + '%';
+        }, 100);
+      }
+      if (pctText) {
+        pctText.textContent = pct + '%';
+      }
+    });
+
+    // Initialize Chart.js Doughnut Graph
+    const doughnutCanvas = document.getElementById('doughnut-chart-canvas');
+    if (doughnutCanvas) {
+      new Chart(doughnutCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: choiceLabels,
+          datasets: [{
+            data: choiceVotes,
+            backgroundColor: ['#4F46E5', '#22C55E', '#F59E0B', '#8B5CF6', '#EF4444', '#06B6D4'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: 'var(--text-sec)',
+                font: { size: 10 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize Chart.js Line Chart (Mock time series metrics)
+    const lineCanvas = document.getElementById('line-chart-canvas');
+    if (lineCanvas) {
+      new Chart(lineCanvas, {
+        type: 'line',
+        data: {
+          labels: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
+          datasets: [{
+            label: 'Votes Cast',
+            data: [12, 19, 32, 28, 45, totalVotes],
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139,92,246,0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: 'var(--text-sec)' } },
+            y: { ticks: { color: 'var(--text-sec)', precision: 0 } }
+          }
+        }
+      });
+    }
+  });
+
+  // Client-side CSV download
+  function exportCSV() {
+    let csv = 'Choice,Votes\n';
+    choiceLabels.forEach((lbl, i) => {
+      csv += `"${lbl.replace(/"/g, '""')}",${choiceVotes[i]}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'poll_results_{{ question.id }}.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('CSV downloaded successfully!', 'success');
+  }
+
+  // Client-side Excel download (Tabular XML)
+  function exportExcel() {
+    let xml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+    xml += '<head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Poll Results</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+    xml += '<body><table><tr><th>Choice</th><th>Votes</th></tr>';
+    choiceLabels.forEach((lbl, i) => {
+      xml += `<tr><td>${lbl}</td><td>${choiceVotes[i]}</td></tr>`;
+    });
+    xml += '</table></body></html>';
+
+    const blob = new Blob([xml], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'poll_results_{{ question.id }}.xls');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Excel report downloaded successfully!', 'success');
+  }
+</script>
+{% endblock %}

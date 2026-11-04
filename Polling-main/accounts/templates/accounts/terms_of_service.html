@@ -1,0 +1,26 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service — VoteHub{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 3rem;">
+  <span class="eyebrow" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">LEGAL AGREEMENT</span>
+  <h1 style="font-family: var(--font-head); font-size: 2.25rem; font-weight: 800; color: var(--text); margin: 0 0 0.5rem 0;">Terms of Service</h1>
+  <p class="subtitle" style="color: var(--text-sec); font-size: 1rem; max-width: 600px;">Last updated: July 2, 2026. Review the rules and regulations for utilizing the VoteHub application.</p>
+</div>
+
+<div style="background: #FFF; border: 1px solid var(--border); border-radius: 14px; padding: 2.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015); line-height: 1.7; color: var(--text); font-size: 0.95rem;">
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">1. Agreement to Terms</h2>
+  <p style="color: var(--text-sec); margin-bottom: 1.75rem;">By registering an account or participating in voting programs on VoteHub, you acknowledge that you have read, understood, and agreed to be legally bound by these terms.</p>
+
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">2. Acceptable Platform Use</h2>
+  <p style="color: var(--text-sec); margin-bottom: 1.75rem;">You agree not to abuse registration pathways, manipulate polling scores, generate fraudulent voter credentials, bypass role authorization blocks, or upload spam/abusive questions/comments.</p>
+
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">3. Role-Based Governance</h2>
+  <p style="color: var(--text-sec); margin-bottom: 1.75rem;">Platform capabilities are strictly segmented by roles (SUPER_ADMIN, ADMIN, USER). Any unauthorized attempt to call protected endpoints or access administrative screens will result in immediate session closure and IP blocking.</p>
+
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">4. Limitation of Liability</h2>
+  <p style="color: var(--text-sec); margin-bottom: 0;">VoteHub is provided "as is". We are not responsible for any decision patterns, survey outcomes, or database fluctuations resulting from customer-directed polls.</p>
+</div>
+{% endblock %}

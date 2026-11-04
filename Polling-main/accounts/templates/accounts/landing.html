@@ -1,0 +1,547 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}VoteHub — Your Opinion. Our Platform. Better Decisions.{% endblock %}
+{% block meta_desc %}VoteHub makes polling simple, fast and engaging. Create polls, vote instantly, and see real-time results that matter.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Dot grid pattern matching mockup */
+  .dot-grid-bg {
+    background-image: radial-gradient(#E2E8F0 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    background-position: center;
+  }
+  
+  /* Blurred background glow circles */
+  .glow-blob {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.45;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .glow-blob-primary {
+    background: rgba(79, 70, 229, 0.15);
+    top: 10%;
+    left: 5%;
+  }
+  .glow-blob-secondary {
+    background: rgba(6, 182, 212, 0.15);
+    bottom: 15%;
+    right: 5%;
+  }
+
+  /* Waving arm animation keyframes */
+  @keyframes wave-arm {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+  }
+  .waving-hand {
+    transform-origin: 20px 70px;
+    animation: wave-arm 2s ease-in-out infinite;
+  }
+
+  /* Paper slide down on ballot box hover */
+  @keyframes slide-paper {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(12px); }
+  }
+  .ballot-box-group:hover .ballot-paper {
+    animation: slide-paper 1.2s ease-in-out infinite;
+  }
+</style>
+{% endblock %}
+
+{% block wrapper_class %}landing-wrapper-full{% endblock %}
+
+{% block content %}
+
+<!-- ── 1. HERO SECTION ── -->
+<section class="hero-section dot-grid-bg" id="home" style="padding: 8rem 0 5rem; background: #FFF; position: relative; overflow: hidden;">
+  <!-- Blurred glow backdrops -->
+  <div class="glow-blob glow-blob-primary"></div>
+  <div class="glow-blob glow-blob-secondary"></div>
+
+  <div class="container" style="position: relative; z-index: 1;">
+    <div class="hero-grid" style="align-items: center; gap: 3rem;">
+      
+      <!-- Left Content -->
+      <div class="hero-content reveal-animated">
+        <span class="badge" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; border: none; font-size: 0.8rem; padding: 6px 14px; margin-bottom: 1.5rem; text-transform: none; letter-spacing: 0.5px; border-radius: 50px; font-weight: 600;">
+          Welcome to VoteHub
+        </span>
+        
+        <h1 class="hero-headline" style="font-size: clamp(2.4rem, 5.5vw, 3.6rem); font-weight: 800; line-height: 1.12; color: #111827; margin-bottom: 1.5rem; letter-spacing: -1.5px;">
+          Your Opinion.<br>
+          Our Platform.<br>
+          <span style="color: #4F46E5;">Better Decisions.</span>
+        </h1>
+        
+        <p class="hero-sub" style="font-size: 1.05rem; color: #64748B; line-height: 1.6; margin-bottom: 2.25rem; max-width: 480px;">
+          VoteHub makes polling simple, fast and engaging. Create polls, vote instantly, and see real-time results that matter.
+        </p>
+        
+        <div class="hero-buttons" style="display: flex; gap: 1rem; margin-bottom: 3.5rem; flex-wrap: wrap;">
+          <a href="{% url 'register' %}" class="btn-cta-primary" style="background: #4F46E5; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25); padding: 0.9rem 1.8rem;">
+            Start Your Journey &nbsp;&rarr;
+          </a>
+          <a href="{% url 'polls:index' %}" class="btn-outline" style="border-color: #CBD5E1; font-weight: 600; padding: 0.85rem 1.6rem; display:inline-flex; align-items:center; gap:6px;">
+            Explore Polls <i data-lucide="arrow-right" style="width:16px; height:16px;"></i>
+          </a>
+        </div>
+        
+        <!-- Trust badge row -->
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap; border-top: 1px solid #E2E8F0; padding-top: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #64748B;">
+            <span style="color: #4F46E5; display: inline-flex; align-items: center; justify-content: center;"><i data-lucide="shield" style="width: 20px; height: 20px;"></i></span>
+            <div>
+              <strong>Secure</strong><br>
+              <span style="font-weight: 400; color: #64748B; font-size: 0.76rem;">100% Safe</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #64748B;">
+            <span style="color: #4F46E5; display: inline-flex; align-items: center; justify-content: center;"><i data-lucide="zap" style="width: 20px; height: 20px;"></i></span>
+            <div>
+              <strong>Fast</strong><br>
+              <span style="font-weight: 400; color: #64748B; font-size: 0.76rem;">Real-time Results</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #64748B;">
+            <span style="color: #4F46E5; display: inline-flex; align-items: center; justify-content: center;"><i data-lucide="smile" style="width: 20px; height: 20px;"></i></span>
+            <div>
+              <strong>Easy</strong><br>
+              <span style="font-weight: 400; color: #64748B; font-size: 0.76rem;">User Friendly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Visual (Mockup Card) -->
+      <div class="hero-visual reveal-animated float-animated" style="position: relative;">
+        <!-- Circular bg shapes to match mockup -->
+        <div style="position: absolute; width: 140px; height: 140px; border-radius: 50%; border: 1.5px dashed rgba(79, 70, 229, 0.15); top: -20px; right: -20px; z-index: 0; pointer-events: none;"></div>
+        <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; background: #4F46E5; opacity: 0.12; bottom: 20px; left: -20px; z-index: 0; pointer-events: none;"></div>
+
+        <div class="glass-card card-premium-hover" style="padding: 2rem; max-width: 440px; margin: 0 auto; box-shadow: var(--card-shadow); background: #FFF; border-radius: 16px; border-color: #E2E8F0; position: relative; z-index: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <span class="badge" style="background: rgba(34, 197, 94, 0.08); color: #22C55E; border: none; font-size: 0.65rem; padding: 4px 10px; border-radius: 50px; display:inline-flex; align-items:center; gap:4px;">
+              <i data-lucide="activity" style="width: 10px; height: 10px;"></i> Active Poll
+            </span>
+          </div>
+          
+          <h3 style="font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; line-height: 1.4; color: #111827; margin-bottom: 1.5rem;">
+            What is your favorite programming language?
+          </h3>
+          
+          <!-- Choices list and Doughnut container -->
+          <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1rem; align-items: center;">
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+              <!-- Option 1 -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #64748B; margin-bottom: 2px;">
+                  <span>Python</span>
+                  <span>45%</span>
+                </div>
+                <div style="height: 6px; background: #F1F5F9; border-radius: 50px; overflow: hidden;">
+                  <div style="height: 100%; background: #4F46E5; width: 45%;"></div>
+                </div>
+              </div>
+              
+              <!-- Option 2 -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #64748B; margin-bottom: 2px;">
+                  <span>JavaScript</span>
+                  <span>25%</span>
+                </div>
+                <div style="height: 6px; background: #F1F5F9; border-radius: 50px; overflow: hidden;">
+                  <div style="height: 100%; background: #22C55E; width: 25%;"></div>
+                </div>
+              </div>
+              
+              <!-- Option 3 -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #64748B; margin-bottom: 2px;">
+                  <span>Java</span>
+                  <span>20%</span>
+                </div>
+                <div style="height: 6px; background: #F1F5F9; border-radius: 50px; overflow: hidden;">
+                  <div style="height: 100%; background: #F59E0B; width: 20%;"></div>
+                </div>
+              </div>
+              
+              <!-- Option 4 -->
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 700; color: #64748B; margin-bottom: 2px;">
+                  <span>C++</span>
+                  <span>10%</span>
+                </div>
+                <div style="height: 6px; background: #F1F5F9; border-radius: 50px; overflow: hidden;">
+                  <div style="height: 100%; background: #8B5CF6; width: 10%;"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Pie/Doughnut mock chart -->
+            <div style="display: flex; justify-content: center; position: relative;">
+              <div style="width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(#4F46E5 0% 45%, #22C55E 45% 70%, #F59E0B 70% 90%, #8B5CF6 90% 100%);"></div>
+              <!-- Doughnut cutout hole -->
+              <div style="position: absolute; width: 56px; height: 56px; border-radius: 50%; background: #FFF; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+            </div>
+          </div>
+          
+          <div style="border-top: 1px solid #E2E8F0; margin-top: 1.5rem; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.78rem; font-weight: 700; color: #64748B;">Total Votes</span>
+            <span style="font-size: 0.88rem; font-weight: 800; color: #111827;">1,284</span>
+          </div>
+        </div>
+
+        <!-- Floating Live Activity Card -->
+        <div class="float-card" style="bottom: -20px; right: -10px; padding: 0.75rem 1rem; flex-direction: row; align-items: center; gap: 10px; background: #FFF; box-shadow: 0 10px 25px rgba(0,0,0,0.06); border-radius: 12px; z-index: 2; border: 1px solid #E2E8F0;">
+          <div style="color: #4F46E5; display:inline-flex;"><i data-lucide="bar-chart-2" style="width: 20px; height: 20px;"></i></div>
+          <div>
+            <strong style="font-size: 0.75rem; color: #111827; display: block;">Live Activity</strong>
+            <span style="font-size: 0.68rem; color: #64748B; font-weight: 550;">128 people voted in the last 5 minutes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 2. FEATURES GRID ── -->
+<section class="features-section" id="features" style="padding: 6rem 0; background: #F8FAFC; border-top: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0;">
+  <div class="container">
+    <div class="text-center reveal-animated">
+      <span class="badge" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; border: none; font-size: 0.75rem; padding: 5px 12px; border-radius: 50px; font-weight: 700; letter-spacing: 0.5px;">
+        FEATURES
+      </span>
+      <h2 class="section-title" style="font-size: 2rem; font-weight: 800; color: #111827; margin-top: 0.5rem; letter-spacing: -0.5px;">
+        Everything You Need for Powerful Polling
+      </h2>
+    </div>
+    
+    <div class="features-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 3.5rem;">
+      <!-- Feature 1 -->
+      <div class="feature-card reveal-animated card-premium-hover" style="background: #FFF; border-radius: 12px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.015); display: flex; gap: 1.25rem;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(79, 70, 229, 0.08); color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem;">User Friendly</h3>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.5;">Simple and intuitive interface for creating and participating in polls.</p>
+        </div>
+      </div>
+      
+      <!-- Feature 2 -->
+      <div class="feature-card reveal-animated card-premium-hover" style="background: #FFF; border-radius: 12px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.015); display: flex; gap: 1.25rem;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(34, 197, 94, 0.08); color: #22C55E; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="lock" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem;">Secure & Private</h3>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.5;">Your data is protected with industry-standard security measures.</p>
+        </div>
+      </div>
+      
+      <!-- Feature 3 -->
+      <div class="feature-card reveal-animated card-premium-hover" style="background: #FFF; border-radius: 12px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.015); display: flex; gap: 1.25rem;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(245, 158, 11, 0.08); color: #F59E0B; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="clock" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem;">Real-time Results</h3>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.5;">See poll results instantly with beautiful charts and insights.</p>
+        </div>
+      </div>
+      
+      <!-- Feature 4 -->
+      <div class="feature-card reveal-animated card-premium-hover" style="background: #FFF; border-radius: 12px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.015); display: flex; gap: 1.25rem;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(244, 63, 94, 0.08); color: #F43F5E; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="smartphone" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem;">Mobile Responsive</h3>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.5;">Access and vote on polls seamlessly across all your devices.</p>
+        </div>
+      </div>
+      
+      <!-- Feature 5 -->
+      <div class="feature-card reveal-animated card-premium-hover" style="background: #FFF; border-radius: 12px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.015); display: flex; gap: 1.25rem;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(139, 92, 246, 0.08); color: #8B5CF6; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="sliders" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem;">Easy Management</h3>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.5;">Create, edit and manage polls effortlessly from your dashboard.</p>
+        </div>
+      </div>
+      
+      <!-- Feature 6 -->
+      <div class="feature-card reveal-animated card-premium-hover" style="background: #FFF; border-radius: 12px; padding: 2rem; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.015); display: flex; gap: 1.25rem;">
+        <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(6, 182, 212, 0.08); color: #06B6D4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i data-lucide="bar-chart-2" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem;">Analytics & Insights</h3>
+          <p style="font-size: 0.85rem; color: #64748B; line-height: 1.5;">Get detailed insights and analytics to understand voter behavior.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3. HOW IT WORKS ── -->
+<section id="how-it-works" style="padding: 6rem 0; background: #FFF; border-top: 1px solid #E2E8F0;">
+  <div class="container">
+    <div class="text-center reveal-animated" style="margin-bottom: 3.5rem;">
+      <span class="badge" style="background: rgba(79,70,229,0.07); color: #4F46E5; border: none; font-size: 0.75rem; padding: 5px 12px; border-radius: 50px; font-weight: 700; letter-spacing: 0.5px;">
+        HOW IT WORKS
+      </span>
+      <h2 class="section-title" style="font-size: 2rem; font-weight: 800; color: #111827; margin-top: 0.5rem; letter-spacing: -0.5px;">
+        Simple, Fast and Transparent
+      </h2>
+      <p style="font-size: 1rem; color: #64748B; margin-top: 0.5rem; max-width: 520px; margin-left: auto; margin-right: auto;">
+        Get started in minutes — no technical knowledge required.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; position: relative;">
+      <!-- Step connector line (decorative) -->
+
+      <!-- Step 1 -->
+      <div class="reveal-animated card-premium-hover" style="background: #FFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 2rem 1.75rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.015); position: relative;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #4F46E5, #6366F1); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; box-shadow: 0 6px 18px rgba(79,70,229,0.25);">
+          <i data-lucide="user-plus" style="width: 22px; height: 22px; color: #fff;"></i>
+        </div>
+        <div style="position: absolute; top: 2rem; right: -1rem; width: 24px; height: 24px; border-radius: 50%; background: #4F46E5; color: #fff; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 1;">1</div>
+        <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">Create Account</h3>
+        <p style="font-size: 0.85rem; color: #64748B; line-height: 1.6;">Register with your email address in seconds. No credit card required.</p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="reveal-animated card-premium-hover" style="background: #FFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 2rem 1.75rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.015); position: relative; animation-delay: 0.1s;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #06B6D4, #0EA5E9); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; box-shadow: 0 6px 18px rgba(6,182,212,0.25);">
+          <i data-lucide="search" style="width: 22px; height: 22px; color: #fff;"></i>
+        </div>
+        <div style="position: absolute; top: 2rem; right: -1rem; width: 24px; height: 24px; border-radius: 50%; background: #06B6D4; color: #fff; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 1;">2</div>
+        <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">Browse Polls</h3>
+        <p style="font-size: 0.85rem; color: #64748B; line-height: 1.6;">Discover active polls across various topics and categories that interest you.</p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="reveal-animated card-premium-hover" style="background: #FFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 2rem 1.75rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.015); position: relative; animation-delay: 0.2s;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #22C55E, #16A34A); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; box-shadow: 0 6px 18px rgba(34,197,94,0.25);">
+          <i data-lucide="check-circle-2" style="width: 22px; height: 22px; color: #fff;"></i>
+        </div>
+        <div style="position: absolute; top: 2rem; right: -1rem; width: 24px; height: 24px; border-radius: 50%; background: #22C55E; color: #fff; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 1;">3</div>
+        <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">Cast Your Vote</h3>
+        <p style="font-size: 0.85rem; color: #64748B; line-height: 1.6;">Select your answer with a single click. Your vote is secure and anonymous.</p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="reveal-animated card-premium-hover" style="background: #FFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 2rem 1.75rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.015); position: relative; animation-delay: 0.3s;">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B, #D97706); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; box-shadow: 0 6px 18px rgba(245,158,11,0.25);">
+          <i data-lucide="bar-chart-2" style="width: 22px; height: 22px; color: #fff;"></i>
+        </div>
+        <div style="position: absolute; top: 2rem; right: -1rem; width: 24px; height: 24px; border-radius: 50%; background: #F59E0B; color: #fff; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; z-index: 1;">4</div>
+        <h3 style="font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">See Live Results</h3>
+        <p style="font-size: 0.85rem; color: #64748B; line-height: 1.6;">Watch results update in real time with beautiful visual charts and insights.</p>
+      </div>
+    </div>
+
+    <!-- CTA under the steps -->
+    <div class="text-center reveal-animated" style="margin-top: 3.5rem;">
+      <a href="{% url 'register' %}" class="btn-primary" style="background: #4F46E5; padding: 0.9rem 2rem; box-shadow: 0 4px 14px rgba(79,70,229,0.25); display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+        <i data-lucide="rocket" style="width: 16px; height: 16px;"></i> Get Started for Free
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── 4. CTA SPLIT SECTION ── -->
+<section class="cta-section" style="padding: 6rem 0; background: #F8FAFC; border-top: 1px solid #E2E8F0;">
+  <div class="container">
+    <div style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.03), rgba(79, 70, 229, 0.07)); border-radius: var(--radius); padding: 4rem 3rem; display: flex; align-items: center; justify-content: space-between; gap: 4rem; flex-wrap: wrap; border: 1.5px solid rgba(79, 70, 229, 0.08);">
+      
+      <!-- Text & actions -->
+      <div style="flex: 1; min-width: 280px;" class="reveal-animated">
+        <h2 style="font-family: var(--font-head); font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; color: #111827; line-height: 1.2; margin-bottom: 1rem;">
+          Ready to make your voice count?
+        </h2>
+        <p style="font-size: 1.05rem; color: #64748B; margin-bottom: 2rem;">
+          Join thousands of users who trust VoteHub for their polling needs.
+        </p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="{% url 'register' %}" class="btn-primary" style="background: #4F46E5; padding: 0.85rem 1.75rem; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2); display:inline-flex; align-items:center; gap:6px;">
+            <i data-lucide="user-plus" style="width:16px; height:16px;"></i> Create Account
+          </a>
+          <a href="{% url 'login' %}" class="btn-outline" style="border-color: #CBD5E1; color: #64748B; background: #FFF; display:inline-flex; align-items:center; gap:6px;">
+            <i data-lucide="log-in" style="width:16px; height:16px;"></i> Login Now
+          </a>
+        </div>
+      </div>
+      
+      <!-- Interactive SVG ballot box character visual -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 2rem; position: relative;" class="reveal-animated">
+        <!-- SVG Avatar character waving -->
+        <svg width="100" height="130" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+          <!-- Body -->
+          <path d="M20 90 C 20 65, 80 65, 80 90 L 80 120 L 20 120 Z" fill="#4F46E5" />
+          <!-- Neck -->
+          <rect x="44" y="55" width="12" height="15" fill="#FED7AA" />
+          <!-- Head -->
+          <circle cx="50" cy="40" r="22" fill="#FED7AA" />
+          <!-- Hair -->
+          <path d="M28 35 C 28 15, 72 15, 72 35 C 65 25, 35 25, 28 35 Z" fill="#1E293B" />
+          <!-- Eyes -->
+          <circle cx="44" cy="38" r="2.5" fill="#1E293B" />
+          <circle cx="56" cy="38" r="2.5" fill="#1E293B" />
+          <!-- Smile -->
+          <path d="M44 48 Q 50 53 56 48" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" />
+          <!-- Waving Hand -->
+          <g class="waving-hand">
+            <rect x="10" y="65" width="10" height="40" rx="5" fill="#FED7AA" transform="rotate(-30 10 65)" />
+            <circle cx="5" cy="55" r="8" fill="#FED7AA" />
+          </g>
+        </svg>
+
+        <!-- Interactive SVG Ballot Box -->
+        <svg class="ballot-box-group" width="120" height="130" viewBox="0 0 120 130" fill="none" xmlns="http://www.w3.org/2000/svg" style="cursor:pointer; overflow:visible;">
+          <!-- Shadow base -->
+          <ellipse cx="60" cy="115" rx="45" ry="8" fill="#E2E8F0" />
+          <!-- Vote Paper card (w/ checkmark) -->
+          <g class="ballot-paper">
+            <rect x="40" y="5" width="40" height="45" rx="4" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2.5" />
+            <path d="M50 25 L 56 31 L 70 17" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+          <!-- Box body background -->
+          <path d="M20 50 L 100 50 L 95 110 L 25 110 Z" fill="#F8FAFC" stroke="#4F46E5" stroke-width="3" stroke-linejoin="round" />
+          <!-- Front label text -->
+          <rect x="35" y="70" width="50" height="22" rx="4" fill="#4F46E5" />
+          <text x="60" y="85" fill="#FFFFFF" font-family="Inter" font-size="9" font-weight="bold" text-anchor="middle">VOTE</text>
+          <!-- Slot open line -->
+          <line x1="32" y1="50" x2="88" y2="50" stroke="#1E293B" stroke-width="4" stroke-linecap="round" />
+        </svg>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ── 4. BRAND FOOTER OVERWRITE ── -->
+<footer style="background: #FFF; padding: 4.5rem 0 2rem; border-top: 1px solid #E2E8F0; position: relative;">
+  <div class="container">
+    <div style="display: grid; grid-template-columns: 1.2fr repeat(3, 0.9fr); gap: 2rem; margin-bottom: 3.5rem; flex-wrap: wrap;">
+      <!-- Column 1: Brand Info -->
+      <div>
+        <a href="#" style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; color: #111827; margin-bottom: 1.25rem;">
+          <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #FFF; font-weight: 800;">V</div>
+          VoteHub
+        </a>
+        <p style="font-size: 0.88rem; color: #64748B; line-height: 1.5; margin-bottom: 1.5rem; max-width: 220px;">
+          Empowering opinions.<br>
+          Driving better decisions.
+        </p>
+        <!-- Social connects -->
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style="width: 36px; height: 36px; border-radius: 50%; background: #F1F5F9; display: inline-flex; align-items: center; justify-content: center; color: #64748B; transition: var(--transition);" title="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" style="width: 36px; height: 36px; border-radius: 50%; background: #F1F5F9; display: inline-flex; align-items: center; justify-content: center; color: #64748B; transition: var(--transition);" title="Twitter / X">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style="width: 36px; height: 36px; border-radius: 50%; background: #F1F5F9; display: inline-flex; align-items: center; justify-content: center; color: #64748B; transition: var(--transition);" title="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style="width: 36px; height: 36px; border-radius: 50%; background: #F1F5F9; display: inline-flex; align-items: center; justify-content: center; color: #64748B; transition: var(--transition);" title="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Column 2: Quick Links -->
+      <div>
+        <h4 style="font-family: var(--font-head); font-size: 0.88rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px;">Quick Links</h4>
+        <ul style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem; color: #64748B;">
+          <li><a href="#home" style="transition: var(--transition);">Home</a></li>
+          <li><a href="{% url 'polls:index' %}" style="transition: var(--transition);">Polls</a></li>
+          <li><a href="#features" style="transition: var(--transition);">Features</a></li>
+          <li><a href="{% url 'about_us' %}" style="transition: var(--transition);">About Us</a></li>
+        </ul>
+      </div>
+      
+      <!-- Column 3: Resources -->
+      <div>
+        <h4 style="font-family: var(--font-head); font-size: 0.88rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px;">Resources</h4>
+        <ul style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem; color: #64748B;">
+          <li><a href="#how-it-works" style="transition: var(--transition);">How It Works</a></li>
+          <li><a href="{% url 'help_center' %}" style="transition: var(--transition);">Help Center</a></li>
+          <li><a href="{% url 'privacy_policy' %}" style="transition: var(--transition);">Privacy Policy</a></li>
+          <li><a href="{% url 'terms_of_service' %}" style="transition: var(--transition);">Terms of Service</a></li>
+        </ul>
+      </div>
+      
+      <!-- Column 4: Support -->
+      <div>
+        <h4 style="font-family: var(--font-head); font-size: 0.88rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px;">Support</h4>
+        <ul style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem; color: #64748B;">
+          <li><a href="{% url 'contact_us' %}" style="transition: var(--transition);">Contact Us</a></li>
+          <li><a href="{% url 'faq' %}" style="transition: var(--transition);">FAQ</a></li>
+          <li><a href="{% url 'feedback' %}" style="transition: var(--transition);">Feedback</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div style="border-top: 1px solid #E2E8F0; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.82rem; color: #A0AEC0;">
+      <p>&copy; 2025 VoteHub. All rights reserved.</p>
+      <!-- Scroll to top button -->
+      <a href="#home" style="width: 36px; height: 36px; border-radius: 50%; background: #4F46E5; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); text-decoration: none;">&uarr;</a>
+    </div>
+  </div>
+</footer>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Re-initialize Lucide icons for landing-page specific icons
+  document.addEventListener("DOMContentLoaded", function () {
+    if (typeof lucide !== "undefined") {
+      lucide.createIcons();
+    }
+  });
+
+  // IntersectionObserver: animate feature cards and reveal-animated on scroll
+  document.addEventListener("DOMContentLoaded", function () {
+    const animEls = document.querySelectorAll(".features-grid .feature-card, .reveal-animated");
+    if ("IntersectionObserver" in window) {
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.animationPlayState = "running";
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+      animEls.forEach((el) => {
+        // Pause animation initially — will play on scroll-in
+        el.style.animationPlayState = "paused";
+        obs.observe(el);
+      });
+    } else {
+      // Fallback: just show everything immediately
+      animEls.forEach((el) => {
+        el.style.opacity = "1";
+        el.style.transform = "none";
+      });
+    }
+  });
+</script>
+{% endblock %}

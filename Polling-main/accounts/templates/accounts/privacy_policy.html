@@ -1,0 +1,31 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy — VoteHub{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 3rem;">
+  <span class="eyebrow" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">LEGAL POLICY</span>
+  <h1 style="font-family: var(--font-head); font-size: 2.25rem; font-weight: 800; color: var(--text); margin: 0 0 0.5rem 0;">Privacy Policy</h1>
+  <p class="subtitle" style="color: var(--text-sec); font-size: 1rem; max-width: 600px;">Last updated: July 2, 2026. Learn about how we handle, process, and protect your personal information.</p>
+</div>
+
+<div style="background: #FFF; border: 1px solid var(--border); border-radius: 14px; padding: 2.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015); line-height: 1.7; color: var(--text); font-size: 0.95rem;">
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">1. Information We Collect</h2>
+  <p style="color: var(--text-sec); margin-bottom: 1.75rem;">We collect credentials you register with (e.g. email address, first name, last name). For polls, we store choices selected and recorded timestamps. Individual voter identity is protected through rigorous authorization boundaries.</p>
+
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">2. How We Use Your Information</h2>
+  <p style="color: var(--text-sec); margin-bottom: 1.75rem;">Your information is used strictly to power core VoteHub capabilities, including:</p>
+  <ul style="color: var(--text-sec); margin-bottom: 1.75rem; padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+    <li>Authenticating sessions and securing accounts.</li>
+    <li>Tracking whether a voter has already participated in a specific program.</li>
+    <li>Compiling aggregate, anonymous survey and stats data for dashboard display.</li>
+  </ul>
+
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">3. Data Security & Storage</h2>
+  <p style="color: var(--text-sec); margin-bottom: 1.75rem;">All passwords are encrypted with industry-standard PBKDF2 hashing algorithms. Database transaction records, audit pathways, and security controls are continuously checked to defend against unauthorized penetration.</p>
+
+  <h2 style="font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 1rem; color: var(--text);">4. Third Party Integration</h2>
+  <p style="color: var(--text-sec); margin-bottom: 0;">If you link or sign in with third-party channels (like Google Authentication), we gather profile metrics in compliance with Google API standards. We do not sell or monetize personal customer details to external aggregators.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_desc %}VoteHub Super Admin{% endblock %}" />
+  <title>{% block title %}Super Admin — VoteHub{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'polls/style.css' %}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>(function(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="sidebar-layout">
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ══════════════ SUPER ADMIN SIDEBAR (deepest dark) ══════════════ -->
+  <aside class="admin-sidebar super-admin-sidebar" id="admin-sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-logo-icon" style="background: linear-gradient(135deg, #EF4444, #8B5CF6);">S</div>
+      <span class="sidebar-logo-text">VoteHub</span>
+      <button class="sidebar-close-mobile" onclick="closeSidebar()">
+        <i data-lucide="x" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+
+    <!-- Super Admin Role Badge -->
+    <div style="padding: 0 1rem 1.25rem;">
+      <span class="sidebar-role-badge" style="background:rgba(239,68,68,0.22);color:#FCA5A5;border-color:rgba(239,68,68,0.35);">
+        <i data-lucide="shield-check" style="width:11px;height:11px;"></i>&nbsp;Super Admin
+      </span>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- Main -->
+      <a href="{% url 'polls:super_admin_dashboard' %}"
+         class="sidebar-nav-link {% if request.resolver_match.url_name == 'super_admin_dashboard' %}active{% endif %}">
+        <i data-lucide="layout-dashboard" style="width:17px;height:17px;"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <!-- Platforms -->
+      <div class="sidebar-nav-section">
+        <span class="sidebar-nav-section-label">Management</span>
+
+        <a href="{% url 'polls:super_admin_admins' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'super_admin_admins' %}active{% endif %}">
+          <i data-lucide="shield-check" style="width:17px;height:17px;"></i>
+          <span>Admin Management</span>
+        </a>
+
+        <a href="{% url 'polls:super_admin_users' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'super_admin_users' %}active{% endif %}">
+          <i data-lucide="users" style="width:17px;height:17px;"></i>
+          <span>User Management</span>
+        </a>
+
+        <a href="{% url 'polls:admin_polls_list' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'admin_polls_list' %}active{% endif %}">
+          <i data-lucide="list" style="width:17px;height:17px;"></i>
+          <span>Poll Management</span>
+        </a>
+
+        <a href="{% url 'polls:admin_analytics' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'admin_analytics' %}active{% endif %}">
+          <i data-lucide="trending-up" style="width:17px;height:17px;"></i>
+          <span>Analytics</span>
+        </a>
+      </div>
+
+      <!-- Settings & Account -->
+      <div class="sidebar-nav-section">
+        <span class="sidebar-nav-section-label">System</span>
+
+        <a href="{% url 'polls:settings' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+          <i data-lucide="settings" style="width:17px;height:17px;"></i>
+          <span>Settings</span>
+        </a>
+
+        <a href="{% url 'polls:profile' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+          <i data-lucide="user" style="width:17px;height:17px;"></i>
+          <span>Profile</span>
+        </a>
+      </div>
+
+      <!-- Logout -->
+      <div class="sidebar-nav-section" style="margin-top:auto;">
+        <a href="#" class="sidebar-nav-link sidebar-nav-link-danger"
+           onclick="event.preventDefault(); document.getElementById('sa-logout-form').submit();">
+          <i data-lucide="log-out" style="width:17px;height:17px;"></i>
+          <span>Logout</span>
+        </a>
+        <form id="sa-logout-form" action="{% url 'logout' %}" method="post" style="display:none;">
+          {% csrf_token %}
+        </form>
+      </div>
+
+    </nav>
+
+    <!-- Bottom User Card -->
+    <div class="sidebar-user-card">
+      <div class="sidebar-user-avatar" style="background:linear-gradient(135deg,#EF4444,#8B5CF6);">
+        {{ user.username|first|upper }}
+      </div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{ user.username }}</div>
+        <div class="sidebar-user-role" style="color:#FCA5A5;">Super Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════ MAIN CONTENT ══════════════ -->
+  <div class="sidebar-main" id="sidebar-main">
+
+    <!-- Topbar -->
+    <header class="sidebar-topbar">
+      <div class="topbar-left">
+        <button class="topbar-hamburger" onclick="openSidebar()">
+          <i data-lucide="menu" style="width:20px;height:20px;"></i>
+        </button>
+        <nav class="topbar-breadcrumb">
+          <a href="{% url 'polls:super_admin_dashboard' %}">VoteHub</a>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--border);"></i>
+          <span>Super Admin</span>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--border);"></i>
+          <span>{% block breadcrumb %}Dashboard{% endblock %}</span>
+        </nav>
+      </div>
+
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" onclick="toggleTheme()" title="Toggle theme">
+          <i data-lucide="sun" id="theme-toggle-icon" style="width:18px;height:18px;"></i>
+        </button>
+
+        <div class="noti-container">
+          <button class="topbar-icon-btn" onclick="toggleNotiPanel()" style="position:relative;">
+            <i data-lucide="bell" style="width:18px;height:18px;"></i>
+            <span class="noti-badge-dot" id="noti-bell-badge"></span>
+          </button>
+          <div class="noti-panel" id="noti-panel-drawer">
+            <div class="noti-header">
+              <h4>Notifications</h4>
+              <button class="noti-clear-btn" onclick="clearNotifications()">Clear All</button>
+            </div>
+            <div class="noti-list" id="noti-list-container">
+              <div class="text-center" style="padding:1rem;font-size:.8rem;color:var(--text-sec);">No new notifications.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:relative;">
+          <button class="topbar-avatar-btn" onclick="toggleAvatarMenu()">
+            <div class="topbar-avatar" style="background:linear-gradient(135deg,#EF4444,#8B5CF6);">
+              {{ user.username|first|upper }}
+            </div>
+            <i data-lucide="chevron-down" style="width:13px;height:13px;color:var(--text-sec);"></i>
+          </button>
+          <div class="topbar-avatar-menu" id="topbar-avatar-menu">
+            <a href="{% url 'polls:profile' %}" class="topbar-menu-item">
+              <i data-lucide="user" style="width:14px;height:14px;"></i> Profile
+            </a>
+            <a href="{% url 'polls:settings' %}" class="topbar-menu-item">
+              <i data-lucide="settings" style="width:14px;height:14px;"></i> Settings
+            </a>
+            <a href="{% url 'polls:super_admin_dashboard' %}" class="topbar-menu-item">
+              <i data-lucide="layout-dashboard" style="width:14px;height:14px;"></i> SA Dashboard
+            </a>
+            <a href="/admin/" class="topbar-menu-item">
+              <i data-lucide="terminal" style="width:14px;height:14px;"></i> Django Admin
+            </a>
+            <div style="border-top:1px solid var(--border);margin:6px 0;"></div>
+            <a href="#" class="topbar-menu-item topbar-menu-danger"
+               onclick="event.preventDefault();document.getElementById('sa-logout-form').submit();">
+              <i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="toast-stack" id="toast-stack-container"></div>
+
+    <main class="sidebar-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    function openSidebar()  { document.getElementById('admin-sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('open'); }
+    function closeSidebar() { document.getElementById('admin-sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('open'); }
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = cur === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      const el = document.getElementById('theme-toggle-icon');
+      if (el) { el.setAttribute('data-lucide', next === 'dark' ? 'moon' : 'sun'); lucide.createIcons(); }
+    }
+    function toggleAvatarMenu() { document.getElementById('topbar-avatar-menu').classList.toggle('open'); }
+    let notifications = JSON.parse(localStorage.getItem('sa_notifications')) || [
+      { id: 1, title: 'Super Admin Access Active', desc: 'You have full platform control.', time: Date.now() }
+    ];
+    function saveNotifications() { localStorage.setItem('sa_notifications', JSON.stringify(notifications)); renderNotifications(); }
+    function clearNotifications() { notifications = []; saveNotifications(); }
+    function toggleNotiPanel() { document.getElementById('noti-panel-drawer').classList.toggle('open'); }
+    function renderNotifications() {
+      const c = document.getElementById('noti-list-container');
+      const b = document.getElementById('noti-bell-badge');
+      if (!c) return;
+      if (notifications.length > 0) {
+        b.classList.add('active');
+        c.innerHTML = notifications.map(n => `<div class="noti-item"><div class="noti-item-title">${n.title}</div><div class="noti-item-desc">${n.desc}</div></div>`).join('');
+      } else {
+        b.classList.remove('active');
+        c.innerHTML = '<div class="text-center" style="padding:1rem;font-size:.8rem;color:var(--text-sec);">No new notifications.</div>';
+      }
+    }
+    function showToast(text, type = 'success') {
+      const stack = document.getElementById('toast-stack-container');
+      if (!stack) return;
+      const t = document.createElement('div');
+      t.className = `toast-box ${type}`;
+      t.innerHTML = `<span>${type === 'success' ? '⚡' : '⚠️'}</span><div>${text}</div>`;
+      stack.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'all .3s'; setTimeout(() => t.remove(), 300); }, 3500);
+    }
+    window.addEventListener('click', function(e) {
+      const menu = document.getElementById('topbar-avatar-menu');
+      const btn = document.querySelector('.topbar-avatar-btn');
+      if (menu && menu.classList.contains('open') && btn && !btn.contains(e.target)) menu.classList.remove('open');
+      const np = document.getElementById('noti-panel-drawer');
+      const nc = document.querySelector('.noti-container');
+      if (np && np.classList.contains('open') && nc && !nc.contains(e.target)) np.classList.remove('open');
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      lucide.createIcons();
+      renderNotifications();
+      const cur = localStorage.getItem('theme') || 'light';
+      const el = document.getElementById('theme-toggle-icon');
+      if (el) { el.setAttribute('data-lucide', cur === 'dark' ? 'moon' : 'sun'); lucide.createIcons(); }
+      // Render Django messages as auto-dismissing toasts
+      {% for message in messages %}
+        showToast("{{ message|escapejs }}", "{{ message.tags|default:'success' }}");
+      {% endfor %}
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

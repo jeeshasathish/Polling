@@ -1,0 +1,118 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}FAQ — VoteHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Custom accordion styling */
+  .faq-item {
+    background: #FFF;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .faq-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.015);
+    border-color: #CBD5E1;
+  }
+  .faq-header {
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--text);
+    user-select: none;
+  }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0, 1, 0, 1), padding 0.3s;
+    padding: 0 1.5rem;
+    color: var(--text-sec);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border-top: 0px solid var(--border);
+  }
+  .faq-item.active .faq-answer {
+    max-height: 500px;
+    padding: 0.25rem 1.5rem 1.25rem;
+    border-top-width: 1px;
+    transition: max-height 0.3s cubic-bezier(1, 0, 1, 0), padding 0.3s;
+  }
+  .faq-chevron {
+    transition: transform 0.2s;
+    color: var(--text-sec);
+  }
+  .faq-item.active .faq-chevron {
+    transform: rotate(180deg);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 3rem;">
+  <span class="eyebrow" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">FREQUENT QUESTIONS</span>
+  <h1 style="font-family: var(--font-head); font-size: 2.25rem; font-weight: 800; color: var(--text); margin: 0 0 0.5rem 0;">Frequently Asked Questions</h1>
+  <p class="subtitle" style="color: var(--text-sec); font-size: 1rem; max-width: 600px;">Find instant answers to the most common questions regarding VoteHub account configuration, poll moderation, and result calculation.</p>
+</div>
+
+<div style="max-width: 800px; margin: 0 auto 3rem;">
+  <!-- FAQ 1 -->
+  <div class="faq-item active" onclick="toggleFaq(this)">
+    <div class="faq-header">
+      How do I cast a vote on a poll?
+      <i class="faq-chevron" data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+    </div>
+    <div class="faq-answer">
+      Simply register and sign in to your dashboard. Browse the "All Active Surveys" feed, click "View" on any active poll, select your choice, and click "Cast Your Vote". Your response will be securely and instantly registered.
+    </div>
+  </div>
+
+  <!-- FAQ 2 -->
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-header">
+      Are my survey votes anonymous?
+      <i class="faq-chevron" data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+    </div>
+    <div class="faq-answer">
+      Yes! We prioritize your privacy. While we verify your authorization level to ensure singular voting capabilities, individual survey response selections are strictly aggregated and anonymized in the dashboard statistics database.
+    </div>
+  </div>
+
+  <!-- FAQ 3 -->
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-header">
+      Who can create and publish polls?
+      <i class="faq-chevron" data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+    </div>
+    <div class="faq-answer">
+      Only users with Admin or Super Admin privileges have access to administrative dashboards, poll configuration layouts, categories creation tools, and moderation buttons. If you require standard admin access, contact the platform Super Admin.
+    </div>
+  </div>
+
+  <!-- FAQ 4 -->
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-header">
+      Can I close or edit a live poll?
+      <i class="faq-chevron" data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
+    </div>
+    <div class="faq-answer">
+      Administrators can edit questions or choices for draft polls. Once a survey goes live (Active/Published), choices cannot be altered to preserve response authenticity, but admins can close or delete the poll at any time.
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function toggleFaq(el) {
+    el.classList.toggle('active');
+  }
+</script>
+{% endblock %}

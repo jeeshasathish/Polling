@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_desc %}VoteHub — Your voting dashboard{% endblock %}" />
+  <title>{% block title %}Dashboard — VoteHub{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'polls/style.css' %}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>(function(){ const t=localStorage.getItem('theme')||'light'; document.documentElement.setAttribute('data-theme',t); })();</script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="sidebar-layout">
+
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ══════════════ LEFT USER SIDEBAR ══════════════ -->
+  <aside class="admin-sidebar user-sidebar" id="admin-sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-logo-icon">V</div>
+      <span class="sidebar-logo-text">VoteHub</span>
+      <button class="sidebar-close-mobile" onclick="closeSidebar()" aria-label="Close">
+        <i data-lucide="x" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+
+    <!-- Role Badge -->
+    <div style="padding: 0 1rem 1.25rem;">
+      <span class="sidebar-role-badge">
+        <i data-lucide="user-check" style="width:11px;height:11px;"></i>&nbsp;Voter
+      </span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+      <!-- Main -->
+      <a href="{% url 'polls:user_dashboard' %}"
+         class="sidebar-nav-link {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
+        <i data-lucide="layout-dashboard" style="width:17px;height:17px;"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <!-- Voting -->
+      <div class="sidebar-nav-section">
+        <span class="sidebar-nav-section-label">Voting</span>
+
+        <a href="{% url 'polls:index' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+          <i data-lucide="vote" style="width:17px;height:17px;"></i>
+          <span>Available Polls</span>
+        </a>
+
+        <a href="{% url 'polls:user_history' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'user_history' %}active{% endif %}">
+          <i data-lucide="history" style="width:17px;height:17px;"></i>
+          <span>Voting History</span>
+        </a>
+      </div>
+
+      <!-- General -->
+      <div class="sidebar-nav-section">
+        <span class="sidebar-nav-section-label">General</span>
+
+        <a href="{% url 'polls:profile' %}"
+           class="sidebar-nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+          <i data-lucide="user" style="width:17px;height:17px;"></i>
+          <span>Profile</span>
+        </a>
+      </div>
+
+      <!-- Logout -->
+      <div class="sidebar-nav-section" style="margin-top: auto; padding-top: 0.5rem;">
+        <a href="#" class="sidebar-nav-link sidebar-nav-link-danger"
+           onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();">
+          <i data-lucide="log-out" style="width:17px;height:17px;"></i>
+          <span>Logout</span>
+        </a>
+        <form id="sidebar-logout-form" action="{% url 'logout' %}" method="post" style="display:none;">
+          {% csrf_token %}
+        </form>
+      </div>
+
+    </nav>
+
+    <!-- Bottom User Card -->
+    <div class="sidebar-user-card">
+      <div class="sidebar-user-avatar" style="background: linear-gradient(135deg, #06B6D4, #4F46E5);">
+        {{ user.username|first|upper }}
+      </div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">{{ user.username }}</div>
+        <div class="sidebar-user-role">Voter</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════ MAIN CONTENT AREA ══════════════ -->
+  <div class="sidebar-main" id="sidebar-main">
+
+    <!-- Top Bar -->
+    <header class="sidebar-topbar">
+      <div class="topbar-left">
+        <button class="topbar-hamburger" onclick="openSidebar()" aria-label="Open sidebar">
+          <i data-lucide="menu" style="width:20px;height:20px;"></i>
+        </button>
+        <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
+          <a href="{% url 'polls:user_dashboard' %}">VoteHub</a>
+          <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--border);"></i>
+          <span>{% block breadcrumb %}Dashboard{% endblock %}</span>
+        </nav>
+      </div>
+
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" onclick="toggleTheme()" title="Toggle theme">
+          <i data-lucide="sun" id="theme-toggle-icon" style="width:18px;height:18px;"></i>
+        </button>
+
+        <div class="noti-container">
+          <button class="topbar-icon-btn" onclick="toggleNotiPanel()" title="Notifications" style="position:relative;">
+            <i data-lucide="bell" style="width:18px;height:18px;"></i>
+            <span class="noti-badge-dot" id="noti-bell-badge"></span>
+          </button>
+          <div class="noti-panel" id="noti-panel-drawer">
+            <div class="noti-header">
+              <h4>Notifications</h4>
+              <button class="noti-clear-btn" onclick="clearNotifications()">Clear All</button>
+            </div>
+            <div class="noti-list" id="noti-list-container">
+              <div class="text-center" style="padding:1rem;font-size:.8rem;color:var(--text-sec);">No new notifications.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:relative;">
+          <button class="topbar-avatar-btn" onclick="toggleAvatarMenu()" aria-label="User menu">
+            <div class="topbar-avatar" style="background:linear-gradient(135deg,#06B6D4,#4F46E5);">
+              {{ user.username|first|upper }}
+            </div>
+            <i data-lucide="chevron-down" style="width:13px;height:13px;color:var(--text-sec);"></i>
+          </button>
+          <div class="topbar-avatar-menu" id="topbar-avatar-menu">
+            <a href="{% url 'polls:profile' %}" class="topbar-menu-item">
+              <i data-lucide="user" style="width:14px;height:14px;"></i> Profile
+            </a>
+            <a href="{% url 'polls:user_dashboard' %}" class="topbar-menu-item">
+              <i data-lucide="layout-dashboard" style="width:14px;height:14px;"></i> My Dashboard
+            </a>
+            <div style="border-top:1px solid var(--border);margin:6px 0;"></div>
+            <a href="#" class="topbar-menu-item topbar-menu-danger"
+               onclick="event.preventDefault();document.getElementById('sidebar-logout-form').submit();">
+              <i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Toast -->
+    <div class="toast-stack" id="toast-stack-container"></div>
+
+    <!-- Page Content -->
+    <main class="sidebar-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- ══════════════ SCRIPTS ══════════════ -->
+  <script>
+    function openSidebar() {
+      document.getElementById('admin-sidebar').classList.add('open');
+      document.getElementById('sidebar-overlay').classList.add('open');
+    }
+    function closeSidebar() {
+      document.getElementById('admin-sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = cur === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeIcon(next);
+    }
+    function updateThemeIcon(t) {
+      const el = document.getElementById('theme-toggle-icon');
+      if (el) { el.setAttribute('data-lucide', t === 'dark' ? 'moon' : 'sun'); lucide.createIcons(); }
+    }
+    function toggleAvatarMenu() { document.getElementById('topbar-avatar-menu').classList.toggle('open'); }
+    let notifications = JSON.parse(localStorage.getItem('notifications')) || [
+      { id: 1, title: 'Welcome to VoteHub!', desc: 'Browse available polls and cast your vote.', time: Date.now() }
+    ];
+    function saveNotifications() { localStorage.setItem('notifications', JSON.stringify(notifications)); renderNotifications(); }
+    function clearNotifications() { notifications = []; saveNotifications(); }
+    function toggleNotiPanel() { document.getElementById('noti-panel-drawer').classList.toggle('open'); }
+    function renderNotifications() {
+      const c = document.getElementById('noti-list-container');
+      const b = document.getElementById('noti-bell-badge');
+      if (!c) return;
+      if (notifications.length > 0) {
+        b.classList.add('active');
+        c.innerHTML = notifications.map(n => `<div class="noti-item"><div class="noti-item-title">${n.title}</div><div class="noti-item-desc">${n.desc}</div></div>`).join('');
+      } else {
+        b.classList.remove('active');
+        c.innerHTML = '<div class="text-center" style="padding:1rem;font-size:.8rem;color:var(--text-sec);">No new notifications.</div>';
+      }
+    }
+    function showToast(text, type = 'success') {
+      const stack = document.getElementById('toast-stack-container');
+      if (!stack) return;
+      const t = document.createElement('div');
+      t.className = `toast-box ${type}`;
+      t.innerHTML = `<span>${type === 'success' ? '⚡' : '⚠️'}</span><div>${text}</div>`;
+      stack.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'all .3s'; setTimeout(() => t.remove(), 300); }, 3500);
+    }
+    window.addEventListener('click', function(e) {
+      const menu = document.getElementById('topbar-avatar-menu');
+      const btn = document.querySelector('.topbar-avatar-btn');
+      if (menu && menu.classList.contains('open') && btn && !btn.contains(e.target)) menu.classList.remove('open');
+      const np = document.getElementById('noti-panel-drawer');
+      const nc = document.querySelector('.noti-container');
+      if (np && np.classList.contains('open') && nc && !nc.contains(e.target)) np.classList.remove('open');
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      lucide.createIcons();
+      renderNotifications();
+      updateThemeIcon(localStorage.getItem('theme') || 'light');
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

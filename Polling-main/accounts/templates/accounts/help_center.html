@@ -1,0 +1,70 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}Help Center — VoteHub{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 3rem;">
+  <span class="eyebrow" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">SUPPORT HUB</span>
+  <h1 style="font-family: var(--font-head); font-size: 2.25rem; font-weight: 800; color: var(--text); margin: 0 0 0.5rem 0;">Help Center</h1>
+  <p class="subtitle" style="color: var(--text-sec); font-size: 1rem; max-width: 600px;">Have questions? Find answers, guides, and documentation to help you use VoteHub seamlessly.</p>
+</div>
+
+<!-- Search Bar Mockup -->
+<div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+  <i data-lucide="search" style="width: 20px; height: 20px; color: var(--text-sec);"></i>
+  <input type="text" placeholder="Search for articles, guides, or tutorials..." style="border: none; outline: none; font-size: 0.95rem; width: 100%; color: var(--text); background: transparent;">
+</div>
+
+<!-- Grid of Topics -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 4rem;">
+  <!-- Topic 1 -->
+  <div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(79, 70, 229, 0.08); color: #4F46E5; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+      <i data-lucide="rocket" style="width: 20px; height: 20px;"></i>
+    </div>
+    <h3 style="font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">Getting Started</h3>
+    <p style="font-size: 0.88rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 1.25rem;">Learn how to set up your account and vote on your first poll in minutes.</p>
+    <a href="#" style="font-size: 0.85rem; color: #4F46E5; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">Read Guide &rarr;</a>
+  </div>
+
+  <!-- Topic 2 -->
+  <div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(34, 197, 94, 0.08); color: #22C55E; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+      <i data-lucide="vote" style="width: 20px; height: 20px;"></i>
+    </div>
+    <h3 style="font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">Voting & Results</h3>
+    <p style="font-size: 0.88rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 1.25rem;">Understand response choices, live statistics, dynamic charts, and audit details.</p>
+    <a href="#" style="font-size: 0.85rem; color: #22C55E; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">Read Guide &rarr;</a>
+  </div>
+
+  <!-- Topic 3 -->
+  <div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(139, 92, 246, 0.08); color: #8B5CF6; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+      <i data-lucide="user" style="width: 20px; height: 20px;"></i>
+    </div>
+    <h3 style="font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">Account & Profile</h3>
+    <p style="font-size: 0.88rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 1.25rem;">Manage your credentials, update your profile details, and reset passwords.</p>
+    <a href="#" style="font-size: 0.85rem; color: #8B5CF6; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">Read Guide &rarr;</a>
+  </div>
+
+  <!-- Topic 4 -->
+  <div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(245, 158, 11, 0.08); color: #F59E0B; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+      <i data-lucide="sliders" style="width: 20px; height: 20px;"></i>
+    </div>
+    <h3 style="font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">Admin Features</h3>
+    <p style="font-size: 0.88rem; color: var(--text-sec); line-height: 1.5; margin-bottom: 1.25rem;">Configure poll types, duplicate surveys, publish programs, and analyze feedback.</p>
+    <a href="#" style="font-size: 0.85rem; color: #F59E0B; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">Read Guide &rarr;</a>
+  </div>
+</div>
+
+<!-- FAQ Banner CTA -->
+<div style="background: var(--border); border-radius: 12px; padding: 2.25rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap;">
+  <div>
+    <h4 style="font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem;">Still need assistance?</h4>
+    <p style="font-size: 0.9rem; color: var(--text-sec); margin: 0;">Our customer support team is available 24/7 to solve your problems.</p>
+  </div>
+  <a href="{% url 'contact_us' %}" class="btn-primary" style="font-size: 0.82rem; padding: 0.6rem 1.25rem; background: #4F46E5; box-shadow: 0 4px 14px rgba(79,70,229,0.2);">Contact Us</a>
+</div>
+{% endblock %}

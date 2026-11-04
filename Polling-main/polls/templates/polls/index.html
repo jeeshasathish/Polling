@@ -1,0 +1,144 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}All Active Polls — VoteHub{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 2rem;">
+  <span class="eyebrow">Discover Feed</span>
+  <h1>All Active Surveys</h1>
+  <p class="subtitle">Search, filter, and cast your vote on popular topics.</p>
+</div>
+
+<!-- Search, Filter & Sort Controls Row -->
+<div class="search-filter-row reveal reveal-delay-1">
+  <!-- Search text box -->
+  <form method="get" action="{% url 'polls:index' %}" class="search-box-wrap" id="search-form">
+    <!-- Preserve active filters & sorting on submission -->
+    {% if filter_val %}<input type="hidden" name="filter" value="{{ filter_val }}">{% endif %}
+    {% if sort_val %}<input type="hidden" name="sort" value="{{ sort_val }}">{% endif %}
+    
+    <span class="search-icon-svg" style="display:inline-flex; align-items:center;"><i data-lucide="search" style="width:15px; height:15px;"></i></span>
+    <input 
+      type="text" 
+      name="search" 
+      id="search-input" 
+      placeholder="Search polls by title or keyword..." 
+      value="{{ search_val }}"
+    >
+  </form>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <button class="filter-tab {% if not filter_val %}active{% endif %}" onclick="applyFilter('')">All</button>
+    <button class="filter-tab {% if filter_val == 'active' %}active{% endif %}" onclick="applyFilter('active')">Live</button>
+    <button class="filter-tab {% if filter_val == 'closed' %}active{% endif %}" onclick="applyFilter('closed')">Closed</button>
+    <button class="filter-tab {% if filter_val == 'upcoming' %}active{% endif %}" onclick="applyFilter('upcoming')">Upcoming</button>
+  </div>
+
+  <!-- Sort Dropdown -->
+  <div class="sort-select-wrap">
+    <select id="sort-select" onchange="applySort(this.value)">
+      <option value="" {% if not sort_val %}selected{% endif %}>Sort by: Latest</option>
+      <option value="popular" {% if sort_val == 'popular' %}selected{% endif %}>Sort by: Popularity</option>
+      <option value="alphabetical" {% if sort_val == 'alphabetical' %}selected{% endif %}>Sort by: Alphabetical</option>
+      <option value="oldest" {% if sort_val == 'oldest' %}selected{% endif %}>Sort by: Oldest</option>
+    </select>
+  </div>
+</div>
+
+{% if latest_question_list %}
+  <div class="polls-grid reveal reveal-delay-2">
+    {% for question in latest_question_list %}
+      <a href="{% url 'polls:detail' question.id %}" class="poll-item" id="poll-{{ question.id }}" style="padding:0; flex-direction:column; align-items:stretch;">
+        <!-- Cover Gradient Image based on ID -->
+        <div style="height:80px; background: 
+          {% if question.id|divisibleby:4 %}var(--grad-4)
+          {% elif question.id|divisibleby:3 %}var(--grad-3)
+          {% elif question.id|divisibleby:2 %}var(--grad-2)
+          {% else %}var(--grad-1)
+          {% endif %}; position:relative;">
+          <!-- Status Tag badge -->
+          <div style="position:absolute; top:12px; right:12px;">
+            <!-- Simple deterministic scheduling tag -->
+            {% if question.id|divisibleby:4 %}
+              <span class="badge" style="background:#FFF; color:var(--text-sec); border:1px solid var(--border); display:inline-flex; align-items:center; gap:4px; padding: 4px 10px;">
+                <i data-lucide="slash" style="width:12px; height:12px;"></i> Closed
+              </span>
+            {% else %}
+              <span class="badge" style="background:#FFF; color:var(--success); border:1.5px solid var(--success); display:inline-flex; align-items:center; gap:4px; padding: 4px 10px;">
+                <i data-lucide="play" style="width:12px; height:12px;"></i> Live
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="padding:1.5rem 2rem; display:flex; align-items:center; gap:1.5rem; flex:1;">
+          <div class="poll-item-icon" style="display:inline-flex; align-items:center; justify-content:center;">
+            {% if forloop.counter == 1 %}<i data-lucide="flame" style="width: 20px; height: 20px; color: var(--warning);"></i>
+            {% elif forloop.counter == 2 %}<i data-lucide="zap" style="width: 20px; height: 20px; color: var(--accent);"></i>
+            {% elif forloop.counter == 3 %}<i data-lucide="star" style="width: 20px; height: 20px; color: var(--primary);"></i>
+            {% elif forloop.counter == 4 %}<i data-lucide="lightbulb" style="width: 20px; height: 20px; color: var(--secondary);"></i>
+            {% else %}<i data-lucide="target" style="width: 20px; height: 20px; color: var(--danger);"></i>
+            {% endif %}
+          </div>
+          
+          <div class="poll-item-text">
+            <span class="badge {% if question.id|divisibleby:3 %}badge-tech{% elif question.id|divisibleby:2 %}badge-sports{% else %}badge-edu{% endif %}" style="padding: 2px 8px; font-size: 0.65rem; margin-bottom: 6px; display:inline-flex;">
+              {% if question.id|divisibleby:3 %}Technology{% elif question.id|divisibleby:2 %}Sports{% else %}Education{% endif %}
+            </span>
+            <h3>{{ question.question_text }}</h3>
+            <p>Published {{ question.pub_date|timesince }} ago · Created by Admin</p>
+          </div>
+          
+          <span class="poll-item-arrow" style="display:inline-flex; align-items:center;"><i data-lucide="chevron-right" style="width:16px; height:16px;"></i></span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state reveal">
+    <span class="empty-icon">🗳️</span>
+    <h2>No polls are available.</h2>
+    <p>Try refining your search keyword or clearing the status filters.</p>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Apply filter parameter
+  function applyFilter(filterVal) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (filterVal) {
+      urlParams.set('filter', filterVal);
+    } else {
+      urlParams.delete('filter');
+    }
+    window.location.search = urlParams.toString();
+  }
+
+  // Apply sort parameter
+  function applySort(sortVal) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (sortVal) {
+      urlParams.set('sort', sortVal);
+    } else {
+      urlParams.delete('sort');
+    }
+    window.location.search = urlParams.toString();
+  }
+
+  // Trigger search on typing pause
+  let typingTimer;
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        document.getElementById('search-form').submit();
+      }, 500); // 500ms delay
+    });
+  }
+</script>
+{% endblock %}

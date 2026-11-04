@@ -1,0 +1,169 @@
+{% extends "polls/base_user.html" %}
+{% load static %}
+
+{% block title %}My Dashboard — VoteHub{% endblock %}
+{% block breadcrumb %}My Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Welcome Banner ── -->
+<div class="reveal-animated" style="background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); border-radius: var(--radius); padding: 2rem 2.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; overflow: hidden; position: relative;">
+  <div style="position:absolute; top:-30px; right:-30px; width:180px; height:180px; background:radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events:none;"></div>
+
+  <div style="position: relative; z-index: 1;">
+    <p style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem;" id="user-time-label">Welcome</p>
+    <h1 style="font-family: var(--font-head); font-size: clamp(1.3rem, 3vw, 1.9rem); font-weight: 800; color: #fff; margin-bottom: 0.4rem;">
+      Hello, {{ user.first_name|default:"Voter" }}! 👋
+    </h1>
+    <p style="color: rgba(255,255,255,0.65); font-size: 0.88rem;">
+      {{ total_available }} poll{{ total_available|pluralize }} available to vote · {{ active_count }} active right now
+    </p>
+  </div>
+
+  <a href="{% url 'polls:index' %}" class="btn-primary" style="font-size: 0.85rem; padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.35); color: #fff; backdrop-filter: blur(8px); flex-shrink: 0; position: relative; z-index: 1;">
+    <i data-lucide="vote" style="width:15px;height:15px;"></i> Vote Now
+  </a>
+</div>
+
+<!-- ── Stats Row ── -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+  <div class="stat-chip reveal-animated" style="animation-delay:0.05s;">
+    <div class="stat-num">{{ total_available }}</div>
+    <div class="stat-label">Available Polls</div>
+  </div>
+  <div class="stat-chip reveal-animated" style="animation-delay:0.12s;">
+    <div class="stat-num" style="color: #22C55E;">{{ active_count }}</div>
+    <div class="stat-label">Active Now</div>
+  </div>
+  <div class="stat-chip reveal-animated" style="animation-delay:0.19s;">
+    <div class="stat-num" style="color: #F59E0B;">{{ ending_soon|length }}</div>
+    <div class="stat-label">Ending Soon</div>
+  </div>
+</div>
+
+<!-- ── Two Column Layout ── -->
+<div style="display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start;">
+
+  <!-- Available Polls Grid -->
+  <div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h2 style="font-family: var(--font-head); font-size: 1.05rem; font-weight: 800; color: var(--text);">
+        <i data-lucide="list" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:var(--primary);"></i>
+        Available Polls
+      </h2>
+      <a href="{% url 'polls:index' %}" class="btn-outline" style="font-size:0.78rem; padding: 5px 14px;">
+        See All →
+      </a>
+    </div>
+
+    {% if available_polls %}
+    <div class="user-polls-grid">
+      {% for poll in available_polls %}
+      <a href="{% url 'polls:detail' poll.id %}" class="user-poll-card reveal-animated" style="animation-delay: {{ forloop.counter0 |add:1 }}00ms;">
+
+        <!-- Color bar based on poll id -->
+        <div class="user-poll-card-cover" style="background:
+          {% if poll.id|divisibleby:4 %}linear-gradient(90deg, #8B5CF6, #EF4444)
+          {% elif poll.id|divisibleby:3 %}linear-gradient(90deg, #22C55E, #06B6D4)
+          {% elif poll.id|divisibleby:2 %}linear-gradient(90deg, #F59E0B, #EF4444)
+          {% else %}linear-gradient(90deg, #4F46E5, #06B6D4){% endif %};"></div>
+
+        <div class="user-poll-card-body">
+          <div class="user-poll-card-title">{{ poll.question_text }}</div>
+          <div class="user-poll-card-meta">Published {{ poll.pub_date|timesince }} ago</div>
+        </div>
+
+        <div class="user-poll-card-footer">
+          <span class="badge {% if poll.id|divisibleby:3 %}badge-tech{% elif poll.id|divisibleby:2 %}badge-sports{% else %}badge-edu{% endif %}" style="padding:2px 8px;font-size:0.62rem;">
+            {% if poll.id|divisibleby:3 %}Technology{% elif poll.id|divisibleby:2 %}Sports{% else %}Education{% endif %}
+          </span>
+          <span style="font-size:0.78rem;font-weight:700;color:var(--primary);display:flex;align-items:center;gap:4px;">
+            Vote <i data-lucide="arrow-right" style="width:13px;height:13px;"></i>
+          </span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <span class="empty-icon">🗳️</span>
+      <h2>No polls available</h2>
+      <p>Check back soon — new polls are added regularly.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right Sidebar Panel -->
+  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+    <!-- Ending Soon -->
+    <div class="glass-card" style="padding: 1.5rem; margin-bottom: 0;">
+      <h3 style="font-family: var(--font-head); font-size: 0.88rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px;">
+        <i data-lucide="timer" style="width:15px;height:15px;color:#F59E0B;"></i> Ending Soon
+      </h3>
+      {% if ending_soon %}
+        {% for poll in ending_soon %}
+        <a href="{% url 'polls:detail' poll.id %}" style="display:block; padding: 0.75rem 0; border-bottom: 1px solid var(--border); text-decoration:none; color:var(--text);" class="{% if not forloop.last %}{% endif %}">
+          <div style="font-size:0.82rem; font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ poll.question_text }}</div>
+          <div style="font-size:0.72rem; color:var(--text-sec);">Active {{ poll.pub_date|timesince }} ago</div>
+        </a>
+        {% empty %}
+        <p style="font-size:0.82rem; color:var(--text-sec);">No polls ending soon.</p>
+        {% endfor %}
+      {% else %}
+        <p style="font-size:0.82rem; color:var(--text-sec);">No polls ending soon.</p>
+      {% endif %}
+    </div>
+
+    <!-- Profile Card -->
+    <div class="glass-card" style="padding: 1.5rem; margin-bottom: 0;">
+      <h3 style="font-family: var(--font-head); font-size: 0.88rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px;">
+        <i data-lucide="user-circle" style="width:15px;height:15px;color:var(--primary);"></i> My Profile
+      </h3>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#06B6D4,#4F46E5);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0;">
+          {{ user.username|first|upper }}
+        </div>
+        <div>
+          <div style="font-weight:700;color:var(--text);font-size:0.9rem;">{{ user.username }}</div>
+          <div style="font-size:0.72rem;color:var(--text-sec);">{{ user.email|default:"No email set" }}</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border-radius:var(--radius-xs);padding:0.75rem;margin-bottom:0.75rem;font-size:0.78rem;color:var(--text-sec);">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span>Role</span> <strong style="color:var(--primary);">Voter</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Member since</span> <strong>{{ user_joined }}</strong></div>
+      </div>
+      <a href="{% url 'polls:profile' %}" class="btn-outline" style="width:100%;font-size:0.82rem;padding:0.6rem;justify-content:center;text-align:center;">
+        Edit Profile →
+      </a>
+    </div>
+
+    <!-- Quick Vote CTA -->
+    <div style="background: linear-gradient(135deg, #4F46E5, #8B5CF6); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center;">
+      <i data-lucide="vote" style="width:28px;height:28px;color:rgba(255,255,255,0.8);margin-bottom:0.75rem;"></i>
+      <h4 style="font-family:var(--font-head);font-size:0.95rem;font-weight:800;color:#fff;margin-bottom:0.4rem;">Ready to vote?</h4>
+      <p style="font-size:0.78rem;color:rgba(255,255,255,0.65);margin-bottom:1rem;">Browse all active polls and cast your vote.</p>
+      <a href="{% url 'polls:index' %}?filter=active" class="btn-primary" style="background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.35);color:#fff;width:100%;justify-content:center;font-size:0.82rem;">
+        <i data-lucide="zap" style="width:14px;height:14px;"></i> Browse Active Polls
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const h = new Date().getHours();
+    const el = document.getElementById('user-time-label');
+    if (el) {
+      if (h < 12) el.textContent = 'Good morning ☀️';
+      else if (h < 17) el.textContent = 'Good afternoon 🌤️';
+      else el.textContent = 'Good evening 🌙';
+    }
+    lucide.createIcons();
+  });
+</script>
+{% endblock %}

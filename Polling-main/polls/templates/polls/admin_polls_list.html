@@ -1,0 +1,214 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Poll Management — VoteHub{% endblock %}
+{% block breadcrumb %}Polls{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+  <div>
+    <h1 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:4px;">Poll Management</h1>
+    <p style="color:var(--text-sec);font-size:0.88rem;">Create, configure, publish and manage your survey programs</p>
+  </div>
+  <a href="{% url 'polls:admin_polls_create' %}" class="btn-primary" style="font-size:0.82rem;padding:0.6rem 1.25rem;">
+    <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Create New Poll
+  </a>
+</div>
+
+<!-- Stats Row -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;">
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(79,70,229,0.08);">
+      <i data-lucide="bar-chart-3" style="width:22px;height:22px;color:var(--primary);"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Total Polls</h4>
+      <p>{{ total_count }}</p>
+    </div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(34,197,94,0.08);">
+      <i data-lucide="zap" style="width:22px;height:22px;color:#22C55E;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Active Now</h4>
+      <p>{{ active_count }}</p>
+    </div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(245,158,11,0.08);">
+      <i data-lucide="file-edit" style="width:22px;height:22px;color:#F59E0B;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Drafts</h4>
+      <p>{{ draft_count }}</p>
+    </div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(239,68,68,0.08);">
+      <i data-lucide="archive" style="width:22px;height:22px;color:#EF4444;"></i>
+    </div>
+    <div class="summary-info">
+      <h4>Closed</h4>
+      <p>{{ closed_count }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filtering -->
+<div class="search-filter-row reveal reveal-delay-1" style="margin-bottom:1.5rem; display:flex; gap:1rem; flex-wrap:wrap; background:var(--white); border:1.5px solid var(--border); padding:1rem; border-radius:var(--radius-sm); align-items:center;">
+  <form method="get" action="{% url 'polls:admin_polls_list' %}" style="display:flex; flex:1; gap:1rem; flex-wrap:wrap; width:100%;">
+    <!-- Search Box -->
+    <div style="position:relative; flex:1; min-width:240px;">
+      <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-sec); display:flex; align-items:center;"><i data-lucide="search" style="width:14px;height:14px;"></i></span>
+      <input 
+        type="text" 
+        name="search" 
+        placeholder="Search polls..." 
+        value="{{ search_val }}"
+        style="width:100%; padding:0.55rem 0.75rem 0.55rem 2.2rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem;"
+      >
+    </div>
+
+    <!-- Status Dropdown -->
+    <div style="min-width:140px;">
+      <select name="status" onchange="this.form.submit()" style="width:100%; padding:0.55rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem; background:#fff;">
+        <option value="">All Statuses</option>
+        <option value="draft" {% if status_val == 'draft' %}selected{% endif %}>Draft</option>
+        <option value="active" {% if status_val == 'active' %}selected{% endif %}>Active</option>
+        <option value="closed" {% if status_val == 'closed' %}selected{% endif %}>Closed</option>
+        <option value="archived" {% if status_val == 'archived' %}selected{% endif %}>Archived</option>
+      </select>
+    </div>
+
+    <!-- Category Dropdown -->
+    <div style="min-width:160px;">
+      <select name="category" onchange="this.form.submit()" style="width:100%; padding:0.55rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem; background:#fff;">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if cat_val == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn-primary" style="padding:0.55rem 1.25rem; font-size:0.82rem; margin-left:auto;">Apply</button>
+    <a href="{% url 'polls:admin_polls_list' %}" class="btn-outline" style="padding:0.55rem 1.25rem; font-size:0.82rem; text-decoration:none; display:inline-flex; align-items:center;">Clear</a>
+  </form>
+</div>
+
+<!-- Polls Table -->
+<div class="data-table-wrap reveal-animated">
+  <div class="data-table-header">
+    <span class="data-table-title">
+      <i data-lucide="list" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:var(--primary);"></i>
+      Survey Programs
+    </span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:40px;">#</th>
+        <th>Poll Title / Question</th>
+        <th>Category</th>
+        <th>Type</th>
+        <th>Visibility</th>
+        <th>Status</th>
+        <th>Dates</th>
+        <th style="text-align:right; width:220px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in polls %}
+      <tr>
+        <td style="color:var(--text-sec); font-size:0.78rem;">{{ forloop.counter }}</td>
+        <td>
+          <div style="font-weight:700; color:var(--text); font-size:0.88rem; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ p.question_text }}">
+            {{ p.question_text }}
+          </div>
+          {% if p.description %}
+            <div style="font-size:0.72rem; color:var(--text-sec); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ p.description }}</div>
+          {% endif %}
+        </td>
+        <td>
+          {% if p.category %}
+            <span class="badge badge-edu" style="padding:2px 8px; font-size:0.62rem;">{{ p.category.name }}</span>
+          {% else %}
+            <span style="color:var(--text-sec); font-size:0.78rem;">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <span style="font-size:0.8rem; font-weight:600; color:var(--text);">
+            {% if p.poll_type == 'multiple' %}Multiple Choice{% else %}Single Choice{% endif %}
+          </span>
+        </td>
+        <td>
+          <span style="font-size:0.78rem; text-transform:capitalize; color:var(--text-sec);">
+            <i data-lucide="{% if p.visibility == 'private' %}lock{% else %}globe{% endif %}" style="width:12px; height:12px; vertical-align:middle; margin-right:3px;"></i>
+            {{ p.visibility }}
+          </span>
+        </td>
+        <td>
+          {% if p.status == 'draft' %}
+            <span class="badge" style="background:rgba(245,158,11,0.08); color:#F59E0B; padding:3px 9px; font-size:0.62rem; font-weight:700;">Draft</span>
+          {% elif p.status == 'active' %}
+            <span class="badge" style="background:rgba(34,197,94,0.08); color:#22C55E; padding:3px 9px; font-size:0.62rem; font-weight:700;">Active</span>
+          {% elif p.status == 'closed' %}
+            <span class="badge" style="background:rgba(239,68,68,0.08); color:#EF4444; padding:3px 9px; font-size:0.62rem; font-weight:700;">Closed</span>
+          {% else %}
+            <span class="badge" style="background:var(--border); color:var(--text-sec); padding:3px 9px; font-size:0.62rem; font-weight:700;">Archived</span>
+          {% endif %}
+        </td>
+        <td style="color:var(--text-sec); font-size:0.75rem; white-space:nowrap;">
+          {% if p.status == 'active' %}
+            <span>Started: {{ p.start_date|date:"M d, g:i a"|default:p.pub_date|date:"M d, Y" }}</span>
+          {% elif p.status == 'closed' %}
+            <span>Ended: {{ p.end_date|date:"M d, g:i a" }}</span>
+          {% else %}
+            <span style="color:var(--text-sec); font-style:italic;">Not started</span>
+          {% endif %}
+        </td>
+        <td>
+          <div style="display:flex; gap:6px; justify-content:flex-end; align-items:center;">
+            
+            {% if p.status == 'draft' %}
+              <a href="{% url 'polls:admin_polls_publish' p.id %}" class="btn-outline" style="border-color:#22C55E; color:#22C55E; font-size:0.75rem; padding:4px 8px; text-decoration:none;" title="Publish Live">
+                Publish
+              </a>
+            {% elif p.status == 'active' %}
+              <a href="{% url 'polls:admin_polls_close' p.id %}" class="btn-outline" style="border-color:#EF4444; color:#EF4444; font-size:0.75rem; padding:4px 8px; text-decoration:none;" title="Close Poll">
+                Close
+              </a>
+            {% endif %}
+
+            <a href="{% url 'polls:admin_polls_duplicate' p.id %}" class="btn-outline" style="font-size:0.75rem; padding:4px 8px; text-decoration:none;" title="Duplicate Poll">
+              <i data-lucide="copy" style="width:12px; height:12px;"></i>
+            </a>
+
+            <a href="{% url 'polls:admin_polls_edit' p.id %}" class="btn-outline" style="font-size:0.75rem; padding:4px 8px; text-decoration:none;" title="Edit Poll">
+              <i data-lucide="edit-2" style="width:12px; height:12px;"></i>
+            </a>
+
+            <a href="{% url 'polls:admin_polls_delete' p.id %}" class="btn-outline" style="border-color:#EF4444; color:#EF4444; font-size:0.75rem; padding:4px 8px; text-decoration:none;" onclick="return confirm('Are you sure you want to permanently delete this poll?');" title="Delete Poll">
+              <i data-lucide="trash-2" style="width:12px; height:12px;"></i>
+            </a>
+            
+            <a href="{% if p.status == 'closed' or p.status == 'active' %}{% url 'polls:results' p.id %}{% else %}{% url 'polls:detail' p.id %}{% endif %}" class="btn-primary" style="font-size:0.75rem; padding:4px 10px; text-decoration:none;" title="View Poll Dashboard">
+              View &rarr;
+            </a>
+
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-sec);">No polls found matching the filter criteria.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

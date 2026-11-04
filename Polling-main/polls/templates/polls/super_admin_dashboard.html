@@ -1,0 +1,202 @@
+{% extends "polls/base_super_admin.html" %}
+{% load static %}
+
+{% block title %}Super Admin Dashboard — VoteHub{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Welcome Banner ── -->
+<div class="reveal-animated" style="background: linear-gradient(135deg, #1A0A2E 0%, #16213E 60%, #0F3460 100%); border-radius: var(--radius); padding: 2rem 2.5rem; margin-bottom: 2rem; display:flex; align-items:center; justify-content:space-between; gap:2rem; overflow:hidden; position:relative;">
+  <div style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%); pointer-events:none;"></div>
+  <div style="position:absolute; bottom:-20px; left:40%; width:150px; height:150px; background:radial-gradient(circle, rgba(239,68,68,0.2) 0%, transparent 70%); pointer-events:none;"></div>
+
+  <div style="position:relative;z-index:1;">
+    <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:rgba(252,165,165,0.75);margin-bottom:0.5rem;" id="sa-time-label">Good morning</p>
+    <h1 style="font-family:var(--font-head);font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:#fff;margin-bottom:0.4rem;">
+      Super Admin Portal
+    </h1>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.88rem;">
+      {{ user.first_name|default:"Super Admin" }} · Full Platform Control · VoteHub
+    </p>
+  </div>
+
+  <div style="display:flex;gap:0.75rem;flex-shrink:0;position:relative;z-index:1;">
+    <a href="{% url 'polls:super_admin_users' %}" class="btn-outline" style="font-size:0.82rem;padding:0.6rem 1.25rem;background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:#fff;">
+      <i data-lucide="users" style="width:14px;height:14px;"></i> Manage Users
+    </a>
+    <a href="{% url 'polls:index' %}" class="btn-primary" style="font-size:0.82rem;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#EF4444,#8B5CF6);border:none;">
+      <i data-lucide="bar-chart-3" style="width:14px;height:14px;"></i> All Polls
+    </a>
+  </div>
+</div>
+
+<!-- ── Platform Stats Grid ── -->
+<div class="admin-stats-grid" style="margin-bottom:2rem;">
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#EF4444;--stat-bg:rgba(239,68,68,0.08);animation-delay:0.05s;">
+    <div class="admin-stat-icon"><i data-lucide="bar-chart-3" style="width:22px;height:22px;color:#EF4444;"></i></div>
+    <div><div class="admin-stat-value">{{ total_polls }}</div><div class="admin-stat-label">Total Polls</div></div>
+    <div class="admin-stat-trend" style="color:var(--text-sec);"><i data-lucide="globe" style="width:11px;height:11px;"></i> Platform-wide</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#22C55E;--stat-bg:rgba(34,197,94,0.08);animation-delay:0.1s;">
+    <div class="admin-stat-icon"><i data-lucide="zap" style="width:22px;height:22px;color:#22C55E;"></i></div>
+    <div><div class="admin-stat-value">{{ active_polls }}</div><div class="admin-stat-label">Active Now</div></div>
+    <div class="admin-stat-trend" style="color:#22C55E;"><i data-lucide="circle" style="width:8px;height:8px;fill:#22C55E;"></i> Live</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#F59E0B;--stat-bg:rgba(245,158,11,0.08);animation-delay:0.15s;">
+    <div class="admin-stat-icon"><i data-lucide="clock" style="width:22px;height:22px;color:#F59E0B;"></i></div>
+    <div><div class="admin-stat-value">{{ upcoming_polls }}</div><div class="admin-stat-label">Scheduled</div></div>
+    <div class="admin-stat-trend" style="color:#F59E0B;"><i data-lucide="calendar" style="width:11px;height:11px;"></i> Queued</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#06B6D4;--stat-bg:rgba(6,182,212,0.08);animation-delay:0.2s;">
+    <div class="admin-stat-icon"><i data-lucide="check-circle-2" style="width:22px;height:22px;color:#06B6D4;"></i></div>
+    <div><div class="admin-stat-value">{{ total_votes }}</div><div class="admin-stat-label">Total Votes</div></div>
+    <div class="admin-stat-trend" style="color:#06B6D4;"><i data-lucide="trending-up" style="width:11px;height:11px;"></i> All Time</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#8B5CF6;--stat-bg:rgba(139,92,246,0.08);animation-delay:0.25s;">
+    <div class="admin-stat-icon"><i data-lucide="users" style="width:22px;height:22px;color:#8B5CF6;"></i></div>
+    <div><div class="admin-stat-value">{{ total_users }}</div><div class="admin-stat-label">Total Users</div></div>
+    <div class="admin-stat-trend" style="color:#8B5CF6;"><i data-lucide="user-plus" style="width:11px;height:11px;"></i> Registered</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#EF4444;--stat-bg:rgba(239,68,68,0.08);animation-delay:0.3s;">
+    <div class="admin-stat-icon"><i data-lucide="shield-check" style="width:22px;height:22px;color:#EF4444;"></i></div>
+    <div><div class="admin-stat-value">{{ super_admin_count }}</div><div class="admin-stat-label">Super Admins</div></div>
+    <div class="admin-stat-trend" style="color:#EF4444;"><i data-lucide="crown" style="width:11px;height:11px;"></i> Privileged</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#4F46E5;--stat-bg:rgba(79,70,229,0.08);animation-delay:0.35s;">
+    <div class="admin-stat-icon"><i data-lucide="shield" style="width:22px;height:22px;color:#4F46E5;"></i></div>
+    <div><div class="admin-stat-value">{{ admin_count }}</div><div class="admin-stat-label">Admins</div></div>
+    <div class="admin-stat-trend" style="color:#4F46E5;"><i data-lucide="user-check" style="width:11px;height:11px;"></i> Staff</div>
+  </div>
+
+  <div class="admin-stat-card reveal-animated" style="--stat-color:#22C55E;--stat-bg:rgba(34,197,94,0.08);animation-delay:0.4s;">
+    <div class="admin-stat-icon"><i data-lucide="user" style="width:22px;height:22px;color:#22C55E;"></i></div>
+    <div><div class="admin-stat-value">{{ voter_count }}</div><div class="admin-stat-label">Voters</div></div>
+    <div class="admin-stat-trend" style="color:#22C55E;"><i data-lucide="vote" style="width:11px;height:11px;"></i> Registered</div>
+  </div>
+
+</div>
+
+<!-- ── Two-Column ── -->
+<div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:1.5rem;margin-bottom:2rem;">
+
+  <!-- Recent Polls -->
+  <div class="data-table-wrap reveal-animated" style="animation-delay:0.1s;">
+    <div class="data-table-header">
+      <span class="data-table-title">
+        <i data-lucide="list" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#EF4444;"></i>
+        Global Polls Overview
+      </span>
+      <a href="{% url 'polls:index' %}" class="btn-outline" style="font-size:0.78rem;padding:5px 12px;">View All →</a>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Question</th><th>Published</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for poll in recent_polls %}
+        <tr>
+          <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ poll.question_text }}</td>
+          <td style="color:var(--text-sec);white-space:nowrap;">{{ poll.pub_date|timesince }} ago</td>
+          <td><span class="badge" style="background:rgba(34,197,94,0.08);color:#22C55E;padding:3px 9px;font-size:0.65rem;">Active</span></td>
+          <td><a href="{% url 'polls:detail' poll.id %}" style="color:var(--primary);font-size:0.78rem;font-weight:600;">View →</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;color:var(--text-sec);padding:2rem;">No polls yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- User Distribution -->
+  <div class="data-table-wrap reveal-animated" style="animation-delay:0.2s;">
+    <div class="data-table-header">
+      <span class="data-table-title">
+        <i data-lucide="users" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#8B5CF6;"></i>
+        Platform Users
+      </span>
+      <a href="{% url 'polls:super_admin_users' %}" class="btn-outline" style="font-size:0.78rem;padding:5px 12px;">Manage →</a>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>User</th><th>Role</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in recent_users %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,
+                {% if u.is_superuser %}#EF4444,#8B5CF6
+                {% elif u.is_staff %}#4F46E5,#06B6D4
+                {% else %}#06B6D4,#22C55E{% endif %});
+                display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:#fff;flex-shrink:0;">
+                {{ u.username|first|upper }}
+              </div>
+              <span style="font-weight:600;font-size:0.85rem;">{{ u.username }}</span>
+            </div>
+          </td>
+          <td>
+            {% if u.is_superuser %}
+              <span class="badge" style="background:rgba(239,68,68,0.08);color:#EF4444;padding:3px 9px;font-size:0.62rem;font-weight:700;">Super Admin</span>
+            {% elif u.is_staff %}
+              <span class="badge" style="background:rgba(79,70,229,0.08);color:#4F46E5;padding:3px 9px;font-size:0.62rem;font-weight:700;">Admin</span>
+            {% else %}
+              <span class="badge" style="background:rgba(34,197,94,0.08);color:#22C55E;padding:3px 9px;font-size:0.62rem;font-weight:700;">Voter</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--text-sec);font-size:0.78rem;white-space:nowrap;">{{ u.date_joined|timesince }} ago</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" style="text-align:center;color:var(--text-sec);padding:2rem;">No users yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ── Quick Actions ── -->
+<div class="reveal-animated" style="animation-delay:0.15s;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:1.5rem 2rem;">
+  <h3 style="font-family:var(--font-head);font-size:0.95rem;font-weight:800;margin-bottom:1.25rem;color:var(--text);">
+    <i data-lucide="zap" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#EF4444;"></i>
+    Super Admin Quick Actions
+  </h3>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+    <a href="{% url 'polls:super_admin_users' %}" class="btn-primary" style="font-size:0.82rem;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#EF4444,#8B5CF6);border:none;">
+      <i data-lucide="users" style="width:14px;height:14px;"></i> Manage All Users
+    </a>
+    <a href="{% url 'polls:index' %}" class="btn-outline" style="font-size:0.82rem;padding:0.6rem 1.25rem;">
+      <i data-lucide="bar-chart-3" style="width:14px;height:14px;"></i> All Polls
+    </a>
+    <a href="{% url 'polls:admin_dashboard' %}" class="btn-outline" style="font-size:0.82rem;padding:0.6rem 1.25rem;">
+      <i data-lucide="layout-dashboard" style="width:14px;height:14px;"></i> Admin Panel View
+    </a>
+    <a href="{% url 'polls:profile' %}" class="btn-outline" style="font-size:0.82rem;padding:0.6rem 1.25rem;">
+      <i data-lucide="user" style="width:14px;height:14px;"></i> My Profile
+    </a>
+    <a href="/admin/" class="btn-outline" style="font-size:0.82rem;padding:0.6rem 1.25rem;border-color:#8B5CF6;color:#8B5CF6;">
+      <i data-lucide="terminal" style="width:14px;height:14px;"></i> Django Admin
+    </a>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const h = new Date().getHours();
+    const el = document.getElementById('sa-time-label');
+    if (el) {
+      if (h < 12) el.textContent = 'Good morning';
+      else if (h < 17) el.textContent = 'Good afternoon';
+      else el.textContent = 'Good evening';
+    }
+    lucide.createIcons();
+  });
+</script>
+{% endblock %}

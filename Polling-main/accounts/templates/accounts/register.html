@@ -1,0 +1,146 @@
+{% extends "accounts/base_accounts.html" %}
+
+{% block title %}Create Account — VoteHub{% endblock %}
+{% block meta_desc %}Join VoteHub today to participate in active surveys and see real-time audience metrics.{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <span style="background: rgba(79, 70, 229, 0.08); width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--primary);">
+        <i data-lucide="rocket" style="width: 20px; height: 20px;"></i>
+      </span>
+    </div>
+    <h1 class="auth-card-title">Get Started</h1>
+    <p class="auth-card-subtitle">Create a free account to vote on surveys</p>
+
+    <!-- Error/Messages display -->
+    {% if messages %}
+      <ul class="messages-list">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <ul class="auth-errors">
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <form method="post" id="register-form" onsubmit="validateRegistration(event)">
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="auth-field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <input
+            type="{% if 'password' in field.name %}password{% elif 'email' in field.name %}email{% else %}text{% endif %}"
+            name="{{ field.html_name }}"
+            id="{{ field.id_for_label }}"
+            placeholder="Enter {{ field.label|lower }}"
+            value="{{ field.value|default:'' }}"
+            required
+            {% if 'password1' in field.name %}oninput="checkStrength(this.value)"{% endif %}
+          >
+          
+          {% if 'password1' in field.name %}
+            <!-- Strength Meter Widget -->
+            <div class="strength-container">
+              <div class="strength-bar-track">
+                <div class="strength-bar-fill" id="reg-strength-fill" style="width: 0%; background: var(--danger);"></div>
+              </div>
+              <span class="strength-label" id="reg-strength-lbl">Strength: Too Short</span>
+            </div>
+          {% endif %}
+
+          {% if field.help_text %}
+            <p class="help-text" style="font-size:0.7rem; line-height:1.4;">{{ field.help_text }}</p>
+          {% endif %}
+          {% if field.errors %}
+            <ul class="field-errors">
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <!-- CAPTCHA validation challenge -->
+      <div class="captcha-container">
+        <div class="captcha-box">
+          <input type="checkbox" id="captcha-check" required>
+          <label for="captcha-check">I am not a robot</label>
+        </div>
+        <div class="captcha-badge">
+          <span>🔒 CAPTCHA</span>
+          <span style="font-size:0.55rem; color:var(--text-sec);">Privacy - Terms</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-auth" id="reg-submit-btn">
+        Create Your Account
+      </button>
+    </form>
+
+
+
+    <div class="auth-footer">
+      Already have an account? <a href="{% url 'login' %}">Sign in &rarr;</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // CAPTCHA and submit validation
+  function validateRegistration(event) {
+    const isChecked = document.getElementById('captcha-check').checked;
+    if (!isChecked) {
+      event.preventDefault();
+      alert('Please check the CAPTCHA verify checkbox.');
+    }
+  }
+
+  // Password strength meter script
+  function checkStrength(val) {
+    const fill = document.getElementById('reg-strength-fill');
+    const lbl = document.getElementById('reg-strength-lbl');
+    
+    if (val.length === 0) {
+      fill.style.width = '0%';
+      lbl.textContent = 'Strength: Too Short';
+      return;
+    }
+
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    if (score <= 1) {
+      fill.style.width = '25%';
+      fill.style.background = 'var(--danger)';
+      lbl.textContent = 'Strength: Weak 🔴';
+    } else if (score === 2) {
+      fill.style.width = '50%';
+      fill.style.background = 'var(--warning)';
+      lbl.textContent = 'Strength: Moderate 🟡';
+    } else if (score === 3) {
+      fill.style.width = '75%';
+      fill.style.background = 'var(--accent)';
+      lbl.textContent = 'Strength: Good 🔵';
+    } else {
+      fill.style.width = '100%';
+      fill.style.background = 'var(--success)';
+      lbl.textContent = 'Strength: Strong ✨';
+    }
+  }
+</script>
+{% endblock %}

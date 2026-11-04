@@ -1,0 +1,317 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_desc %}VoteHub — beautiful, modern enterprise polling platform.{% endblock %}" />
+  <title>{% block title %}VoteHub — Modern Polling{% endblock %}</title>
+  
+  <!-- Inter & Poppins Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{% static 'polls/style.css' %}" />
+  
+  <!-- CDN dependencies (Chart.js & QRious & Lucide Icons) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Client Theme Switcher Setup -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Sticky Navbar -->
+  <nav class="navbar" id="main-nav">
+    <div class="nav-inner">
+      <a href="{% if user.is_authenticated %}{% if user.is_superuser %}{% url 'polls:super_admin_dashboard' %}{% elif user.is_staff %}{% url 'polls:admin_dashboard' %}{% else %}{% url 'polls:user_dashboard' %}{% endif %}{% else %}{% url 'home' %}{% endif %}" class="nav-logo">
+        <div class="nav-logo-icon" style="background:var(--primary); border-radius:10px; font-size:0.95rem;">V</div>
+        VoteHub
+      </a>
+      
+      <!-- Nav Links (role-based) -->
+      <div class="nav-links">
+        {% if user.is_authenticated %}
+          {% if user.is_superuser %}
+            <!-- ── SUPER ADMIN Nav ── -->
+            <a href="{% url 'polls:super_admin_dashboard' %}" {% if request.resolver_match.url_name == 'super_admin_dashboard' %}class="active"{% endif %}>Dashboard</a>
+            <a href="{% url 'polls:super_admin_users' %}" {% if request.resolver_match.url_name == 'super_admin_users' %}class="active"{% endif %}>All Users</a>
+            <a href="{% url 'polls:index' %}" {% if request.resolver_match.url_name == 'index' %}class="active"{% endif %}>Polls</a>
+            <span class="nav-role-badge" style="background:rgba(239,68,68,0.08);color:#DC2626;border-color:rgba(239,68,68,0.2);">
+              <i data-lucide="shield-check" style="width:11px;height:11px;"></i>
+              Super Admin
+            </span>
+          {% elif user.is_staff %}
+            <!-- ── ADMIN Nav ── -->
+            <a href="{% url 'polls:admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}class="active"{% endif %}>Dashboard</a>
+            <a href="{% url 'polls:index' %}" {% if request.resolver_match.url_name == 'index' %}class="active"{% endif %}>All Polls</a>
+            <span class="nav-role-badge admin-badge">
+              <i data-lucide="shield" style="width:11px;height:11px;"></i>
+              Admin
+            </span>
+          {% else %}
+            <!-- ── VOTER Nav ── -->
+            <a href="{% url 'polls:user_dashboard' %}" {% if request.resolver_match.url_name == 'user_dashboard' %}class="active"{% endif %}>Dashboard</a>
+            <a href="{% url 'polls:index' %}" {% if request.resolver_match.url_name == 'index' %}class="active"{% endif %}>Browse Polls</a>
+            <a href="{% url 'polls:profile' %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>Profile</a>
+            <span class="nav-role-badge voter-badge">
+              <i data-lucide="user-check" style="width:11px;height:11px;"></i>
+              Voter
+            </span>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'home' %}#home">Home</a>
+          <a href="{% url 'home' %}#features">Features</a>
+          <a href="{% url 'home' %}#how-it-works">How It Works</a>
+        {% endif %}
+      </div>
+      
+      <div class="nav-actions">
+        <!-- Theme Toggle Button -->
+        <button class="noti-bell-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light/Dark Theme" style="padding:6px; display:inline-flex; align-items:center; justify-content:center;">
+          <i data-lucide="sun" id="theme-toggle-icon" style="width: 18px; height: 18px;"></i>
+        </button>
+
+        {% if user.is_authenticated %}
+          <!-- Notification Bell -->
+          <div class="noti-container">
+            <button class="noti-bell-btn" onclick="toggleNotiPanel()" title="Notifications" style="display:inline-flex; align-items:center; justify-content:center;">
+              <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+              <span class="noti-badge-dot" id="noti-bell-badge"></span>
+            </button>
+            <div class="noti-panel" id="noti-panel-drawer">
+              <div class="noti-header">
+                <h4>Notifications</h4>
+                <button class="noti-clear-btn" onclick="clearNotifications()">Clear All</button>
+              </div>
+              <div class="noti-list" id="noti-list-container">
+                <div class="text-center" style="padding:1rem; font-size:0.8rem; color:var(--text-sec);">
+                  No new notifications.
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!-- Quick link to correct dashboard -->
+          <a href="{% if user.is_superuser %}{% url 'polls:super_admin_dashboard' %}{% elif user.is_staff %}{% url 'polls:admin_dashboard' %}{% else %}{% url 'polls:user_dashboard' %}{% endif %}" class="nav-login" style="font-size:0.78rem; padding:5px 12px;">My Dashboard</a>
+
+          <a href="#" class="btn-logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+          <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+            {% csrf_token %}
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="nav-login">Sign In</a>
+          <a href="{% url 'register' %}" class="nav-cta">
+            Get Started
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        {% endif %}
+      </div>
+      
+      <!-- Hamburger Menu for Mobile -->
+      <button class="nav-hamburger" id="hamburger-btn" onclick="toggleMenu()" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Drawer (role-based) -->
+  <div class="mobile-menu" id="mobile-menu-drawer">
+    {% if user.is_authenticated %}
+      {% if user.is_staff or user.is_superuser %}
+        <div style="padding:8px 0 4px; font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-sec);">
+          Admin Panel
+        </div>
+        <a href="{% url 'polls:admin_dashboard' %}" onclick="toggleMenu()">Dashboard</a>
+        <a href="{% url 'polls:index' %}" onclick="toggleMenu()">All Polls</a>
+
+      {% else %}
+        <div style="padding:8px 0 4px; font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-sec);">
+          Voter Panel
+        </div>
+        <a href="{% url 'polls:user_dashboard' %}" onclick="toggleMenu()">My Dashboard</a>
+        <a href="{% url 'polls:index' %}" onclick="toggleMenu()">Browse Polls</a>
+        <a href="{% url 'polls:profile' %}" onclick="toggleMenu()">Profile</a>
+
+      {% endif %}
+      <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color:#EF4444; font-weight:700; margin-top:1rem;">Logout</a>
+    {% else %}
+      <a href="{% url 'home' %}#home" onclick="toggleMenu()">Home</a>
+      <a href="{% url 'home' %}#features" onclick="toggleMenu()">Features</a>
+      <a href="{% url 'home' %}#how-it-works" onclick="toggleMenu()">How It Works</a>
+      <a href="{% url 'login' %}" onclick="toggleMenu()" style="color:var(--primary);">Sign In</a>
+      <a href="{% url 'register' %}" class="mobile-cta" onclick="toggleMenu()">Get Started Free</a>
+    {% endif %}
+  </div>
+
+  <!-- Toast Stack for Floating Notifications -->
+  <div class="toast-stack" id="toast-stack-container"></div>
+
+  <!-- Page Content Shell -->
+  <main class="{% block wrapper_class %}page-wrapper{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+
+
+  <!-- Drawer and Interactive Javascript -->
+  <script>
+    function toggleMenu() {
+      const btn = document.getElementById('hamburger-btn');
+      const drawer = document.getElementById('mobile-menu-drawer');
+      btn.classList.toggle('open');
+      drawer.classList.toggle('open');
+    }
+
+    // Scroll reveal observer
+    document.addEventListener("DOMContentLoaded", function() {
+      const reveals = document.querySelectorAll(".reveal");
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("active");
+            }
+          });
+        }, { threshold: 0.1 });
+        
+        reveals.forEach(el => observer.observe(el));
+      } else {
+        reveals.forEach(el => el.classList.add("active"));
+      }
+    });
+
+    // Header scroll background
+    window.addEventListener("scroll", function() {
+      const nav = document.getElementById("main-nav");
+      if (window.scrollY > 40) {
+        nav.classList.add("scrolled");
+      } else {
+        nav.classList.remove("scrolled");
+      }
+    });
+
+    // Theme Switcher Function
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      showToast('Theme updated to ' + newTheme + ' mode!', 'success');
+    }
+
+    // ── Client-side Notification Center ─────────────────────────────
+    let notifications = JSON.parse(localStorage.getItem('notifications')) || [
+      { id: 1, title: 'Registration Success', desc: 'Welcome to PollSphere! Your account is active.', time: Date.now() },
+      { id: 2, title: 'New Poll Live', desc: 'SaaS design relaunch survey is open.', time: Date.now() - 3600000 }
+    ];
+
+    function saveNotifications() {
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+      renderNotifications();
+    }
+
+    function addNotification(title, desc) {
+      notifications.unshift({
+        id: Date.now(),
+        title: title,
+        desc: desc,
+        time: Date.now()
+      });
+      saveNotifications();
+      showToast(title, 'success');
+    }
+
+    function clearNotifications() {
+      notifications = [];
+      saveNotifications();
+      showToast('All notifications cleared.', 'success');
+    }
+
+    function toggleNotiPanel() {
+      const panel = document.getElementById('noti-panel-drawer');
+      panel.classList.toggle('open');
+    }
+
+    function renderNotifications() {
+      const container = document.getElementById('noti-list-container');
+      const badge = document.getElementById('noti-bell-badge');
+      
+      if (!container) return;
+
+      if (notifications.length > 0) {
+        badge.classList.add('active');
+        container.innerHTML = notifications.map(n => `
+          <div class="noti-item">
+            <div class="noti-item-title">${n.title}</div>
+            <div class="noti-item-desc">${n.desc}</div>
+          </div>
+        `).join('');
+      } else {
+        badge.classList.remove('active');
+        container.innerHTML = `
+          <div class="text-center" style="padding:1rem; font-size:0.8rem; color:var(--text-sec);">
+            No new notifications.
+          </div>
+        `;
+      }
+    }
+
+    // Floating Toast alerts
+    function showToast(text, type = 'success') {
+      const stack = document.getElementById('toast-stack-container');
+      if (!stack) return;
+
+      const toast = document.createElement('div');
+      toast.className = `toast-box ${type}`;
+      toast.innerHTML = `
+        <span>${type === 'success' ? '⚡' : '⚠️'}</span>
+        <div>${text}</div>
+      `;
+      stack.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Initial render
+    document.addEventListener("DOMContentLoaded", function() {
+      renderNotifications();
+    });
+
+    // Close panel on clicking outside
+    window.addEventListener('click', function(e) {
+      const panel = document.getElementById('noti-panel-drawer');
+      const bell = document.querySelector('.noti-container');
+      if (panel && panel.classList.contains('open') && !bell.contains(e.target)) {
+        panel.classList.remove('open');
+      }
+    });
+
+    // Initialize Lucide Icons
+    document.addEventListener("DOMContentLoaded", function() {
+      lucide.createIcons();
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

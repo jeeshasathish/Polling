@@ -1,0 +1,68 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}Contact Us — VoteHub{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 3rem;">
+  <span class="eyebrow" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">GET IN TOUCH</span>
+  <h1 style="font-family: var(--font-head); font-size: 2.25rem; font-weight: 800; color: var(--text); margin: 0 0 0.5rem 0;">Contact Our Team</h1>
+  <p class="subtitle" style="color: var(--text-sec); font-size: 1rem; max-width: 600px;">Have custom requests or platform questions? Let us know and we'll reply shortly.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; align-items: start;">
+  <!-- Form Card -->
+  <div style="background: #FFF; border: 1px solid var(--border); border-radius: 14px; padding: 2.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+    <h3 style="font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; color: var(--text); margin-top: 0; margin-bottom: 1.5rem;">Send Inquiry</h3>
+    
+    <form method="post" action="{% url 'contact_us' %}" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      {% csrf_token %}
+      
+      <div>
+        <label for="id_name" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); margin-bottom: 0.5rem;">Your Name</label>
+        <input type="text" name="name" id="id_name" placeholder="John Doe" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-size: 0.9rem;" onfocus="this.style.borderColor='#4F46E5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+      </div>
+
+      <div>
+        <label for="id_email" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); margin-bottom: 0.5rem;">Email Address</label>
+        <input type="email" name="email" id="id_email" placeholder="john@example.com" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; font-size: 0.9rem;" onfocus="this.style.borderColor='#4F46E5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'">
+      </div>
+
+      <div>
+        <label for="id_message" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sec); margin-bottom: 0.5rem;">Your Message</label>
+        <textarea name="message" id="id_message" rows="5" placeholder="How can we assist you?" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; font-size: 0.9rem; line-height: 1.5;" onfocus="this.style.borderColor='#4F46E5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'"></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary" style="background: #4F46E5; box-shadow: 0 4px 14px rgba(79,70,229,0.2); padding: 0.85rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; color: #fff; cursor: pointer;">
+        <i data-lucide="send" style="width: 16px; height: 16px;"></i> Send Message
+      </button>
+    </form>
+  </div>
+
+  <!-- Contacts Details -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <!-- Detail 1 -->
+    <div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; display: flex; gap: 1.25rem;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(79, 70, 229, 0.08); color: #4F46E5; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <i data-lucide="mail" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div>
+        <h4 style="font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">Support Email</h4>
+        <p style="font-size: 0.88rem; color: var(--text-sec); margin: 0; margin-bottom: 0.4rem;">Get quick replies for client inquiries.</p>
+        <a href="mailto:support@votehub.com" style="font-size: 0.88rem; color: #4F46E5; font-weight: 600;">support@votehub.com</a>
+      </div>
+    </div>
+
+    <!-- Detail 2 -->
+    <div style="background: #FFF; border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; display: flex; gap: 1.25rem;">
+      <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(6, 182, 212, 0.08); color: #06B6D4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <i data-lucide="map-pin" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div>
+        <h4 style="font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">Global Headquarters</h4>
+        <p style="font-size: 0.88rem; color: var(--text-sec); margin: 0;">VoteHub Inc.<br>100 Innovation Way, Suite 400<br>San Francisco, CA 94107</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

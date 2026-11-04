@@ -1,0 +1,128 @@
+{% extends "polls/base_super_admin.html" %}
+{% load static %}
+
+{% block title %}User Management — Super Admin — VoteHub{% endblock %}
+{% block breadcrumb %}User Management{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+  <div>
+    <h1 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:4px;">
+      Global User Management
+    </h1>
+    <p style="color:var(--text-sec);font-size:0.88rem;">{{ users|length }} total registered account{{ users|length|pluralize }} across all roles</p>
+  </div>
+  <a href="/admin/auth/user/add/" class="btn-primary" style="font-size:0.82rem;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#EF4444,#8B5CF6);border:none;">
+    <i data-lucide="user-plus" style="width:14px;height:14px;"></i> Create User
+  </a>
+</div>
+
+<!-- Role Distribution Stats -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;">
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(139,92,246,0.08);">
+      <i data-lucide="users" style="width:22px;height:22px;color:#8B5CF6;"></i>
+    </div>
+    <div class="summary-info"><h4>Total</h4><p>{{ users|length }}</p></div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(239,68,68,0.08);">
+      <i data-lucide="shield-check" style="width:22px;height:22px;color:#EF4444;"></i>
+    </div>
+    <div class="summary-info"><h4>Super Admins</h4><p>{{ super_admin_count }}</p></div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(79,70,229,0.08);">
+      <i data-lucide="shield" style="width:22px;height:22px;color:#4F46E5;"></i>
+    </div>
+    <div class="summary-info"><h4>Admins</h4><p>{{ admin_count }}</p></div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-icon" style="background:rgba(34,197,94,0.08);">
+      <i data-lucide="user-check" style="width:22px;height:22px;color:#22C55E;"></i>
+    </div>
+    <div class="summary-info"><h4>Voters</h4><p>{{ voter_count }}</p></div>
+  </div>
+</div>
+
+<!-- Users Table -->
+<div class="data-table-wrap reveal-animated">
+  <div class="data-table-header">
+    <span class="data-table-title">
+      <i data-lucide="users" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:#EF4444;"></i>
+      All Platform Users
+    </span>
+    <a href="/admin/auth/user/" class="btn-outline" style="font-size:0.78rem;padding:5px 14px;">
+      <i data-lucide="external-link" style="width:13px;height:13px;"></i> Django Admin
+    </a>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:36px;">#</th>
+        <th>User</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Joined</th>
+        <th>Last Login</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td style="color:var(--text-sec);font-size:0.78rem;">{{ forloop.counter }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,
+              {% if u.is_superuser %}#EF4444,#8B5CF6
+              {% elif u.is_staff %}#4F46E5,#06B6D4
+              {% else %}#06B6D4,#22C55E{% endif %});
+              display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:800;color:#fff;flex-shrink:0;">
+              {{ u.username|first|upper }}
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.88rem;color:var(--text);">{{ u.username }}</div>
+              {% if u.first_name or u.last_name %}
+              <div style="font-size:0.72rem;color:var(--text-sec);">{{ u.first_name }} {{ u.last_name }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </td>
+        <td style="color:var(--text-sec);font-size:0.83rem;">{{ u.email|default:"—" }}</td>
+        <td>
+          {% if u.profile.role == 'SUPER_ADMIN' or u.is_superuser %}
+            <span class="badge" style="background:rgba(239,68,68,0.08);color:#EF4444;padding:3px 10px;font-size:0.63rem;font-weight:700;">Super Admin</span>
+          {% elif u.profile.role == 'ADMIN' or u.is_staff %}
+            <span class="badge" style="background:rgba(79,70,229,0.08);color:#4F46E5;padding:3px 10px;font-size:0.63rem;font-weight:700;">Admin</span>
+          {% else %}
+            <span class="badge" style="background:rgba(34,197,94,0.08);color:#22C55E;padding:3px 10px;font-size:0.63rem;font-weight:700;">Voter</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.is_active %}
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;font-weight:600;color:#22C55E;">
+              <span style="width:7px;height:7px;border-radius:50%;background:#22C55E;display:inline-block;"></span> Active
+            </span>
+          {% else %}
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;font-weight:600;color:var(--text-sec);">
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--border);display:inline-block;"></span> Inactive
+            </span>
+          {% endif %}
+        </td>
+        <td style="color:var(--text-sec);font-size:0.78rem;white-space:nowrap;">{{ u.date_joined|date:"M d, Y" }}</td>
+        <td style="color:var(--text-sec);font-size:0.78rem;white-space:nowrap;">
+          {% if u.last_login %}{{ u.last_login|timesince }} ago{% else %}Never{% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--text-sec);">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

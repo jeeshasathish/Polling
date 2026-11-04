@@ -1,0 +1,78 @@
+{% extends "polls/base_user.html" %}
+{% load static %}
+
+{% block title %}Voting History — VoteHub{% endblock %}
+{% block breadcrumb %}History{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div style="margin-bottom:2rem;">
+  <h1 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:4px;">Voting History</h1>
+  <p style="color:var(--text-sec);font-size:0.88rem;">Review your cast ballots and completed survey programs</p>
+</div>
+
+<!-- History Table -->
+<div class="data-table-wrap reveal-animated">
+  <div class="data-table-header">
+    <span class="data-table-title">
+      <i data-lucide="history" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;color:var(--primary);"></i>
+      Your Cast Ballots
+    </span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:40px;">#</th>
+        <th>Question / Poll</th>
+        <th>Category</th>
+        <th>Response Cast</th>
+        <th>Date & Time Voted</th>
+        <th style="text-align:right; width:120px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in votes %}
+      <tr>
+        <td style="color:var(--text-sec); font-size:0.78rem;">{{ forloop.counter }}</td>
+        <td>
+          <div style="font-weight:700; color:var(--text); font-size:0.88rem;">{{ v.question.question_text }}</div>
+          {% if v.question.description %}
+            <div style="font-size:0.72rem; color:var(--text-sec);">{{ v.question.description }}</div>
+          {% endif %}
+        </td>
+        <td>
+          {% if v.question.category %}
+            <span class="badge badge-edu" style="padding:2px 8px; font-size:0.62rem;">{{ v.question.category.name }}</span>
+          {% else %}
+            <span style="color:var(--text-sec); font-size:0.78rem;">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <span style="font-weight:600; color:var(--primary); font-size:0.82rem;">
+            <i data-lucide="check-circle" style="width:12px; height:12px; vertical-align:middle; margin-right:3px; color:#22C55E;"></i>
+            {{ v.choice.choice_text }}
+          </span>
+        </td>
+        <td style="color:var(--text-sec); font-size:0.8rem;">
+          {{ v.voted_at|date:"M d, Y" }} at {{ v.voted_at|date:"g:i a" }}
+        </td>
+        <td>
+          <div style="display:flex; justify-content:flex-end;">
+            <a href="{% url 'polls:results' v.question.id %}" class="btn-outline" style="font-size:0.75rem; padding:4px 10px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              <i data-lucide="bar-chart-2" style="width:12px; height:12px;"></i> Results
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align:center; padding:3rem; color:var(--text-sec);">You have not cast any votes yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

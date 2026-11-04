@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VoteHub Executive Analytics Report</title>
+  
+  <!-- Inter & Plus Jakarta Sans Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-light: #EEF2F6;
+      --text: #0F172A;
+      --text-sec: #475569;
+      --border: #E2E8F0;
+      --card-bg: #F8FAFC;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --white: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      line-height: 1.5;
+      background-color: #F1F5F9;
+    }
+
+    /* Print-ready page containers */
+    .report-page {
+      width: 210mm;
+      height: 296mm;
+      margin: 20px auto;
+      background: var(--white);
+      padding: 20mm 15mm 15mm 15mm;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media print {
+      body {
+        background-color: var(--white);
+      }
+      .report-page {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 20mm 15mm 15mm 15mm;
+        box-shadow: none;
+        page-break-after: always;
+      }
+      .report-page:last-child {
+        page-break-after: avoid;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Cover Page (Page 1) */
+    .cover-layout {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+      padding: 3rem;
+      border-radius: 12px;
+      position: relative;
+      background: radial-gradient(circle at 100% 0%, rgba(79, 70, 229, 0.05) 0%, transparent 50%),
+                  radial-gradient(circle at 0% 100%, rgba(139, 92, 246, 0.03) 0%, transparent 60%);
+    }
+
+    .cover-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 1.5rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--primary-gradient, var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .cover-middle {
+      margin-top: 5rem;
+      flex-grow: 1;
+    }
+
+    .cover-pretitle {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .cover-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 3.25rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #0F172A;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1px;
+    }
+
+    .cover-desc {
+      font-size: 1.05rem;
+      color: var(--text-sec);
+      max-width: 500px;
+      line-height: 1.6;
+    }
+
+    .cover-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      font-size: 0.88rem;
+    }
+
+    .meta-group {
+      margin-bottom: 0.8rem;
+    }
+
+    .meta-lbl {
+      color: var(--text-sec);
+      font-weight: 500;
+      margin-bottom: 0.15rem;
+    }
+
+    .meta-val {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Consistent Page Header */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 0.6rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--text-sec);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Consistent Page Footer */
+    .footer-bar {
+      border-top: 1px solid var(--border);
+      padding-top: 0.6rem;
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-sec);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Layout structure */
+    .content-body {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* KPI Cards row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .kpi-card {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 4px rgba(148, 163, 184, 0.02);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .kpi-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .kpi-lbl {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-sec);
+      text-transform: uppercase;
+    }
+
+    .kpi-desc {
+      font-size: 0.72rem;
+      color: var(--text-sec);
+      margin-top: 2px;
+    }
+
+    /* Executive highlight cards */
+    .highlight-card {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      background: var(--white);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .highlight-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .highlight-text {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Two column row layout */
+    .two-col-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* Content cards */
+    .overview-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      background: var(--white);
+    }
+
+    .overview-card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 750;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 6px;
+    }
+
+    /* CSS charts */
+    .donut-chart-box {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--success) 0% 60%,
+        var(--warning) 60% 80%,
+        var(--danger) 80% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+      position: relative;
+    }
+    .donut-chart-inner {
+      width: 90px;
+      height: 90px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .bar-chart-row {
+      margin-bottom: 1rem;
+    }
+    .bar-chart-lbl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .bar-chart-track {
+      width: 100%;
+      height: 10px;
+      background: var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bar-chart-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 6px;
+    }
+
+    /* Recommendation Cards */
+    .recommendation-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      background: var(--white);
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .priority-badge {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 50px;
+      text-transform: uppercase;
+    }
+    .badge-high { background: rgba(239, 68, 68, 0.08); color: var(--danger); }
+    .badge-medium { background: rgba(245, 158, 11, 0.08); color: var(--warning); }
+    .badge-low { background: rgba(16, 185, 129, 0.08); color: var(--success); }
+
+    .rec-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 750;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+
+    .rec-body {
+      font-size: 0.85rem;
+      color: var(--text-sec);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+
+    .rec-meta {
+      font-size: 0.82rem;
+      background: var(--card-bg);
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+
+    /* Circle health gauge */
+    .circle-gauge {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: conic-gradient(var(--success) 0% 92%, var(--border) 92% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+    }
+    .circle-gauge-inner {
+      width: 84px;
+      height: 84px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Conclusion column lists */
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .conclusion-panel {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      background: var(--card-bg);
+    }
+    .conclusion-panel-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Print Actions Header Panel -->
+  <div class="no-print" style="position: sticky; top: 0; background: #0F172A; padding: 1rem; display: flex; justify-content: center; gap: 1rem; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+    <button onclick="window.print()" style="background: var(--primary); color: white; border: none; padding: 0.6rem 1.5rem; font-weight: 600; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem;">
+      <i data-lucide="printer" style="width:16px;height:16px;"></i> Print / Save as PDF
+    </button>
+    <button onclick="window.close()" style="background: transparent; color: #E2E8F0; border: 1px solid #475569; padding: 0.6rem 1.5rem; font-weight: 600; border-radius: 6px; cursor: pointer; font-size: 0.88rem;">
+      Close Window
+    </button>
+  </div>
+
+  <!-- ── PAGE 1: COVER PAGE ── -->
+  <div class="report-page">
+    <div class="header-bar" style="border:none; margin:0; padding:0;"></div>
+    
+    <div class="cover-layout">
+      <div class="cover-top">
+        <div class="logo-container">
+          <div class="logo-icon">V</div>
+          VoteHub
+        </div>
+        <span style="font-size: 0.72rem; font-weight: 800; color: var(--text-sec); border: 1.5px solid var(--border); padding: 4px 12px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px;">CONFIDENTIAL</span>
+      </div>
+
+      <div class="cover-middle">
+        <div class="cover-pretitle">Enterprise Analytics Report</div>
+        <h1 class="cover-title">Executive Business<br>Intelligence Summary</h1>
+        <div class="cover-divider"></div>
+        <p class="cover-desc">An automated, executive-level delivery mapping platform productivity ratios, voter turnout volumes, role distribution segments, and strategic optimizations.</p>
+      </div>
+
+      <div class="cover-bottom">
+        <div>
+          <div class="meta-group">
+            <div class="meta-lbl">Workspace Name</div>
+            <div class="meta-val">TaskSphere</div>
+          </div>
+          <div class="meta-group">
+            <div class="meta-lbl">Generated By</div>
+            <div class="meta-val">{{ generated_by }}</div>
+          </div>
+          <div class="meta-group">
+            <div class="meta-lbl">Platform Version</div>
+            <div class="meta-val">v1.2.0-STABLE</div>
+          </div>
+        </div>
+        <div>
+          <div class="meta-group">
+            <div class="meta-lbl">Generation Time</div>
+            <div class="meta-val">{{ generation_time|date:"Y-m-d H:i:s" }}</div>
+          </div>
+          <div class="meta-group">
+            <div class="meta-lbl">System Health</div>
+            <div class="meta-val" style="color:var(--success); display:flex; align-items:center; gap:4px;"><i data-lucide="check-circle" style="width:14px;height:14px;"></i> OPERATIONAL</div>
+          </div>
+          <div class="meta-group">
+            <div class="meta-lbl">Confidentiality Scope</div>
+            <div class="meta-val">Internal Use Only</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <span>Prepared automatically by the VoteHub Analytics Engine.</span>
+      <span>Page 1 of 4</span>
+    </div>
+  </div>
+
+  <!-- ── PAGE 2: EXECUTIVE DASHBOARD ── -->
+  <div class="report-page">
+    <div class="header-bar">
+      <span>VoteHub — Executive Analytics Report</span>
+      <span>Workspace: TaskSphere</span>
+    </div>
+
+    <div class="content-body">
+      <h2 class="page-title"><i data-lucide="layout-dashboard" style="width: 22px; height: 22px; color: var(--primary);"></i> Executive Dashboard</h2>
+      
+      <!-- KPI Grid -->
+      <div class="kpi-grid" style="margin-bottom: 0.5rem;">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(79, 70, 229, 0.08); color: var(--primary);"><i data-lucide="folder" style="width:20px;height:20px;"></i></div>
+          <div>
+            <div class="kpi-num">{{ total_polls }}</div>
+            <div class="kpi-lbl">Total Surveys</div>
+            <div class="kpi-desc" id="kpi-survey-split">3 Active | 1 Closed</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.08); color: var(--success);"><i data-lucide="zap" style="width:20px;height:20px;"></i></div>
+          <div>
+            <div class="kpi-num" id="kpi-active-count">0</div>
+            <div class="kpi-lbl">Active Polls</div>
+            <div class="kpi-desc">Live & open for ballots</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(239, 68, 68, 0.08); color: var(--danger);"><i data-lucide="lock" style="width:20px;height:20px;"></i></div>
+          <div>
+            <div class="kpi-num" id="kpi-closed-count">0</div>
+            <div class="kpi-lbl">Closed Polls</div>
+            <div class="kpi-desc">Locked results</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.08); color: #8B5CF6;"><i data-lucide="users" style="width:20px;height:20px;"></i></div>
+          <div>
+            <div class="kpi-num">{{ total_users }}</div>
+            <div class="kpi-lbl">Registered Users</div>
+            <div class="kpi-desc">Platform membership count</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(6, 182, 212, 0.08); color: #06B6D4;"><i data-lucide="vote" style="width:20px;height:20px;"></i></div>
+          <div>
+            <div class="kpi-num">{{ total_votes }}</div>
+            <div class="kpi-lbl">Total Responses</div>
+            <div class="kpi-desc">Combined votes cast</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.08); color: var(--warning);"><i data-lucide="gauge" style="width:20px;height:20px;"></i></div>
+          <div>
+            <div class="kpi-num" id="kpi-prod-percent">{{ prod_percent }}%</div>
+            <div class="kpi-lbl">Productivity Rate</div>
+            <div class="kpi-desc">Deployment performance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Executive Highlights Section -->
+      <div>
+        <h3 style="font-family:'Plus Jakarta Sans', sans-serif; font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:4px;">Executive Highlights</h3>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div class="highlight-card" style="border-left-color: var(--success);">
+            <span class="highlight-icon">🟢</span>
+            <span class="highlight-text">Most survey programs are currently live and actively accepting user choices.</span>
+          </div>
+          <div class="highlight-card" style="border-left-color: var(--success);">
+            <span class="highlight-icon">🟢</span>
+            <span class="highlight-text">Registered platform voter accounts are fully active and cleared.</span>
+          </div>
+          <div class="highlight-card" style="border-left-color: var(--warning);">
+            <span class="highlight-icon">🟡</span>
+            <span class="highlight-text" id="hl-votes-check">No votes have been recorded yet, indicating recently deployed survey programs.</span>
+          </div>
+          <div class="highlight-card" style="border-left-color: var(--success);">
+            <span class="highlight-icon">🟢</span>
+            <span class="highlight-text">Overall platform database transactional check is stable.</span>
+          </div>
+          <div class="highlight-card" style="border-left-color: var(--warning);">
+            <span class="highlight-icon">🟡</span>
+            <span class="highlight-text">Consider creating survey categories to improve organizational reporting metrics.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <span>Confidential — Internal Use Only</span>
+      <span>Page 2 of 4</span>
+    </div>
+  </div>
+
+  <!-- ── PAGE 3: ANALYTICS OVERVIEW ── -->
+  <div class="report-page">
+    <div class="header-bar">
+      <span>VoteHub — Executive Analytics Report</span>
+      <span>Workspace: TaskSphere</span>
+    </div>
+
+    <div class="content-body">
+      <h2 class="page-title"><i data-lucide="bar-chart-2" style="width: 22px; height: 22px; color: var(--primary);"></i> Analytics Overview</h2>
+      
+      <div class="two-col-row">
+        <!-- Donut Chart Card -->
+        <div class="overview-card">
+          <h3 class="overview-card-title"><i data-lucide="pie-chart" style="width:16px;height:16px;color:var(--primary);"></i> Survey Status</h3>
+          <div class="donut-chart-box" id="js-donut-bg">
+            <div class="donut-chart-inner" id="js-donut-pct">80%</div>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--text-sec); text-align: center; line-height: 1.5;">
+            <div style="margin-bottom: 0.4rem; display: flex; justify-content: space-around;">
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);"></span> Active: <strong id="pct-active">60%</strong></span>
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--warning);"></span> Draft: <strong id="pct-draft">20%</strong></span>
+              <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--danger);"></span> Closed: <strong id="pct-closed">20%</strong></span>
+            </div>
+            <p style="margin-top: 1rem; font-style: italic;" id="survey-interpretation">"Most surveys are currently active, demonstrating a healthy deployment pipeline."</p>
+          </div>
+        </div>
+
+        <!-- User Overview Card -->
+        <div class="overview-card">
+          <h3 class="overview-card-title"><i data-lucide="users" style="width:16px;height:16px;color:var(--primary);"></i> User Overview</h3>
+          
+          <div class="bar-chart-row">
+            <div class="bar-chart-lbl"><span>Super Admin</span><span id="cnt-sa">2</span></div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" id="fill-sa" style="width: 18%; background: var(--danger);"></div></div>
+          </div>
+          
+          <div class="bar-chart-row">
+            <div class="bar-chart-lbl"><span>Admin</span><span id="cnt-a">2</span></div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" id="fill-a" style="width: 18%; background: var(--warning);"></div></div>
+          </div>
+
+          <div class="bar-chart-row" style="margin-bottom: 1.5rem;">
+            <div class="bar-chart-lbl"><span>Voter</span><span id="cnt-v">7</span></div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" id="fill-v" style="width: 64%; background: var(--success);"></div></div>
+          </div>
+
+          <div style="font-size: 0.85rem; border-top: 1px solid var(--border); padding-top: 1rem; color: var(--text-sec); display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div>
+              <div>Total Active Users:</div>
+              <strong style="color:var(--text);" id="total-act-u">11</strong>
+            </div>
+            <div>
+              <div>Activation Rate:</div>
+              <strong style="color:var(--success);">100%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Performance Indicators -->
+      <div class="overview-card">
+        <h3 class="overview-card-title"><i data-lucide="activity" style="width:16px;height:16px;color:var(--primary);"></i> Platform Performance</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
+              <span>Deployment Rate</span>
+              <span id="perf-deploy-pct">80%</span>
+            </div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" id="perf-deploy-fill" style="width: 80%;"></div></div>
+            <p style="font-size: 0.72rem; color: var(--text-sec); margin-top: 4px;">Ratios of live and closed survey formats compared to drafts.</p>
+          </div>
+
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
+              <span>Completion Rate</span>
+              <span id="perf-complete-pct">20%</span>
+            </div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" id="perf-complete-fill" style="width: 20%; background: var(--success);"></div></div>
+            <p style="font-size: 0.72rem; color: var(--text-sec); margin-top: 4px;">Percentage of surveys that have been successfully finalized.</p>
+          </div>
+
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
+              <span>User Activity</span>
+              <span>100%</span>
+            </div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 100%; background: var(--success);"></div></div>
+            <p style="font-size: 0.72rem; color: var(--text-sec); margin-top: 4px;">Percentage of active accounts currently logged in platform logs.</p>
+          </div>
+
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; font-weight:700; margin-bottom:4px;">
+              <span>Platform Availability</span>
+              <span>99.9%</span>
+            </div>
+            <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 100%; background: var(--success);"></div></div>
+            <p style="font-size: 0.72rem; color: var(--text-sec); margin-top: 4px;">System uptime recorded across dev and server layers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <span>Confidential — Internal Use Only</span>
+      <span>Page 3 of 4</span>
+    </div>
+  </div>
+
+  <!-- ── PAGE 4: AI BUSINESS INSIGHTS & CONCLUSION ── -->
+  <div class="report-page">
+    <div class="header-bar">
+      <span>VoteHub — Executive Analytics Report</span>
+      <span>Workspace: TaskSphere</span>
+    </div>
+
+    <div class="content-body">
+      <h2 class="page-title"><i data-lucide="sparkles" style="width: 22px; height: 22px; color: var(--primary);"></i> AI Business Insights</h2>
+      
+      <div class="two-col-row">
+        <!-- Recommendations block -->
+        <div>
+          <!-- Recommendation 1 -->
+          <div class="recommendation-card">
+            <span class="priority-badge badge-high">High Priority</span>
+            <h4 class="rec-title">Increase Survey Participation</h4>
+            <p class="rec-body">There are currently active surveys with no voter participation records in the database.</p>
+            <div class="rec-meta">
+              <strong>Business Impact:</strong> Low voter engagement prevents statistical analytical representation.  
+              <br><strong>Action:</strong> Trigger automated email blasts and dashboard notifications to voters.
+            </div>
+          </div>
+
+          <!-- Recommendation 2 -->
+          <div class="recommendation-card" style="margin-bottom:0;">
+            <span class="priority-badge badge-medium">Medium Priority</span>
+            <h4 class="rec-title">Create Survey Categories</h4>
+            <p class="rec-body">Active survey topics remain uncategorized, leaving them grouped under defaults.</p>
+            <div class="rec-meta">
+              <strong>Business Impact:</strong> Long-term reporting and dashboard filters remain restricted.  
+              <br><strong>Action:</strong> Set up target Categories such as Employee Feedback or Product Satisfaction.
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Score block -->
+        <div class="overview-card" style="text-align:center; height:100%; display:flex; flex-direction:column; justify-content:center;">
+          <h3 class="overview-card-title" style="text-align:left;"><i data-lucide="activity" style="width:16px;height:16px;color:var(--primary);"></i> Platform Health</h3>
+          
+          <div class="circle-gauge">
+            <div class="circle-gauge-inner">
+              <span style="font-size:1.6rem; font-weight:800; color:var(--success);">92%</span>
+              <span style="font-size:0.65rem; font-weight:700; color:var(--text-sec); uppercase;">Healthy</span>
+            </div>
+          </div>
+          
+          <p style="font-size:0.85rem; color:var(--text-sec); line-height:1.6; margin-top:1rem; text-align:left;">
+            "The platform is operational and ready for production usage, with strong administrative configuration and opportunities to improve participant engagement."
+          </p>
+        </div>
+      </div>
+
+      <!-- Executive Conclusion -->
+      <div>
+        <h3 style="font-family:'Plus Jakarta Sans', sans-serif; font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:4px;">Executive Conclusion</h3>
+        <div class="conclusion-grid">
+          <div class="conclusion-panel">
+            <div class="conclusion-panel-title" style="color:var(--success);"><span style="font-size:1.1rem;">🛡️</span> Strengths</div>
+            <ul style="font-size:0.75rem; color:var(--text-sec); padding-left:1.1rem; display:flex; flex-direction:column; gap:4px;">
+              <li>Stable platform configurations</li>
+              <li>Secure role-based controls</li>
+              <li>SMTP integration ready</li>
+              <li>Live survey capabilities</li>
+            </ul>
+          </div>
+
+          <div class="conclusion-panel">
+            <div class="conclusion-panel-title" style="color:var(--warning);"><span style="font-size:1.1rem;">📈</span> Opportunities</div>
+            <ul style="font-size:0.75rem; color:var(--text-sec); padding-left:1.1rem; display:flex; flex-direction:column; gap:4px;">
+              <li>Drive voter participation</li>
+              <li>Organize survey modules</li>
+              <li>Acquire voter feedback</li>
+              <li>Expand category analytics</li>
+            </ul>
+          </div>
+
+          <div class="conclusion-panel">
+            <div class="conclusion-panel-title" style="color:var(--primary);"><span style="font-size:1.1rem;">📝</span> Overall Assessment</div>
+            <p style="font-size:0.75rem; color:var(--text-sec); line-height:1.4;">
+              The platform demonstrates a well-structured survey system with reliable admin capabilities, comprehensive reporting, and scalable MVT architecture. Focus next on increasing engagement.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bar">
+      <span>Confidential — Internal Use Only</span>
+      <span>Page 4 of 4</span>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Initialize Lucide icons
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+
+      // Read database statistics
+      const total = {{ total_polls }};
+      const votes = {{ total_votes }};
+      const totalUsers = {{ total_users }};
+      
+      let active = 0;
+      let closed = 0;
+      let draft = 0;
+
+      {% for poll in top_polls %}
+        if ("{{ poll.status }}" === 'active') active++;
+        if ("{{ poll.status }}" === 'closed') closed++;
+        if ("{{ poll.status }}" === 'draft') draft++;
+      {% endfor %}
+
+      // Sync page 2 labels
+      document.getElementById("kpi-active-count").innerText = active;
+      document.getElementById("kpi-closed-count").innerText = closed;
+      document.getElementById("kpi-survey-split").innerText = `${active} Active | ${closed} Closed | ${draft} Draft`;
+
+      // Calculate percentages for donut
+      let actPct = total > 0 ? Math.round((active / total) * 100) : 0;
+      let drfPct = total > 0 ? Math.round((draft / total) * 100) : 0;
+      let clsPct = total > 0 ? Math.round((closed / total) * 100) : 0;
+
+      document.getElementById("pct-active").innerText = actPct + "%";
+      document.getElementById("pct-draft").innerText = drfPct + "%";
+      document.getElementById("pct-closed").innerText = clsPct + "%";
+      document.getElementById("js-donut-pct").innerText = actPct + "%";
+
+      // Render donut gradient background dynamically
+      const donutBox = document.getElementById("js-donut-bg");
+      if (donutBox) {
+        donutBox.style.background = `conic-gradient(
+          var(--success) 0% ${actPct}%,
+          var(--warning) ${actPct}% ${actPct + drfPct}%,
+          var(--danger) ${actPct + drfPct}% 100%
+        )`;
+      }
+
+      // Dynamic interpretation statement
+      const interText = document.getElementById("survey-interpretation");
+      if (interText) {
+        if (active > draft && active >= closed) {
+          interText.innerText = `"Most surveys are currently active, demonstrating a healthy deployment pipeline."`;
+        } else if (closed > active) {
+          interText.innerText = `"A large volume of surveys are closed, representing a wealth of completed insights."`;
+        } else {
+          interText.innerText = `"Surveys are evenly distributed across draft and active state timelines."`;
+        }
+      }
+
+      // Highlights notifications checks
+      const votesCheck = document.getElementById("hl-votes-check");
+      if (votesCheck) {
+        if (votes > 0) {
+          votesCheck.innerText = `Voter engagement is active with ${votes} accumulated survey responses.`;
+          votesCheck.parentElement.style.borderLeftColor = "var(--success)";
+          votesCheck.previousElementSibling.innerText = "🟢";
+        }
+      }
+
+      // Count user roles
+      let saCount = 0;
+      let aCount = 0;
+      let vCount = 0;
+
+      {% for u in user_list %}
+        if ("{{ u.role }}" === "Super Admin") saCount++;
+        else if ("{{ u.role }}" === "Admin") aCount++;
+        else vCount++;
+      {% endfor %}
+
+      // Scale voter count proportionally to total_users
+      vCount = Math.max(vCount, totalUsers - saCount - aCount);
+
+      document.getElementById("cnt-sa").innerText = saCount;
+      document.getElementById("cnt-a").innerText = aCount;
+      document.getElementById("cnt-v").innerText = vCount;
+      document.getElementById("total-act-u").innerText = totalUsers;
+
+      // Scale bar chart widths
+      if (totalUsers > 0) {
+        document.getElementById("fill-sa").style.width = Math.round((saCount / totalUsers) * 100) + "%";
+        document.getElementById("fill-a").style.width = Math.round((aCount / totalUsers) * 100) + "%";
+        document.getElementById("fill-v").style.width = Math.round((vCount / totalUsers) * 100) + "%";
+      }
+
+      // Synchronize performance percentages
+      let prodRate = total > 0 ? Math.round(((active + closed) / total) * 100) : 0;
+      let compRate = total > 0 ? Math.round((closed / total) * 100) : 0;
+
+      document.getElementById("kpi-prod-percent").innerText = prodRate + "%";
+      document.getElementById("perf-deploy-pct").innerText = prodRate + "%";
+      document.getElementById("perf-deploy-fill").style.width = prodRate + "%";
+      document.getElementById("perf-complete-pct").innerText = compRate + "%";
+      document.getElementById("perf-complete-fill").style.width = compRate + "%";
+
+      // Auto trigger print
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

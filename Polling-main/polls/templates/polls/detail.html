@@ -1,0 +1,380 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}{{ question.question_text }} — VoteHub{% endblock %}
+
+{% block content %}
+<div class="detail-layout-grid">
+  <!-- Left Side: Poll Card Form & Comments -->
+  <div>
+    <div class="glass-card question-card reveal">
+      <div class="q-label" style="display:inline-flex; align-items:center; gap:4px;">
+        <i data-lucide="check-square" style="width: 14px; height: 14px;"></i>
+        {% if question.id|divisibleby:3 %}Technology{% elif question.id|divisibleby:2 %}Sports{% else %}Education{% endif %}
+      </div>
+      <h1>{{ question.question_text }}</h1>
+    </div>
+
+    <!-- Interactive Voting Form Card -->
+    <div class="glass-card choices-card reveal reveal-delay-1" style="padding: 2.25rem;">
+      <h3 class="choices-title">Select Your Answer</h3>
+
+      {% if error_message %}
+        <div class="error-banner">
+          <span>⚠️</span>
+          <strong>Error:</strong> {{ error_message }}
+        </div>
+      {% endif %}
+
+      <form action="{% url 'polls:vote' question.id %}" method="post" id="voting-form">
+        {% csrf_token %}
+
+        <!-- Dynamic Choice Formatter based on Question ID -->
+        {% if question.id|divisibleby:4 %}
+          <!-- Rating Poll Type -->
+          <div class="rating-bar-wrap">
+            {% for choice in question.choice_set.all %}
+              <button type="button" class="rating-btn" onclick="selectRatingChoice(this, '{{ choice.id }}')">
+                {{ forloop.counter }}
+              </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="choice" id="rating-choice-input" required>
+
+        {% elif question.id|divisibleby:3 %}
+          <!-- Emoji Poll Type -->
+          <div class="emoji-wrap">
+            {% for choice in question.choice_set.all %}
+              <button type="button" class="emoji-btn" onclick="selectEmojiChoice(this, '{{ choice.id }}')" title="{{ choice.choice_text }}">
+                {% if forloop.counter == 1 %}😍
+                {% elif forloop.counter == 2 %}😎
+                {% elif forloop.counter == 3 %}🤔
+                {% else %}👍
+                {% endif %}
+              </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="choice" id="emoji-choice-input" required>
+
+        {% elif question.id|divisibleby:2 %}
+          <!-- Image Poll Type (Mock visual illustrations) -->
+          <div class="image-option-grid">
+            {% for choice in question.choice_set.all %}
+              <div class="image-choice-card" onclick="selectImageChoice(this, '{{ choice.id }}')">
+                <!-- Preset mock gradients as mock images -->
+                <div style="height: 90px; background: 
+                  {% if forloop.counter == 1 %}var(--grad-1)
+                  {% elif forloop.counter == 2 %}var(--grad-2)
+                  {% elif forloop.counter == 3 %}var(--grad-3)
+                  {% else %}var(--grad-4)
+                  {% endif %};"></div>
+                <div class="image-choice-label">{{ choice.choice_text }}</div>
+              </div>
+            {% endfor %}
+          </div>
+          <input type="hidden" name="choice" id="image-choice-input" required>
+
+        {% else %}
+          <!-- Standard Multiple Choice / Yes/No -->
+          <div class="choices-list">
+            {% for choice in question.choice_set.all %}
+              <div class="choice-option" onclick="selectStandardChoice(this)">
+                <input 
+                  type="radio" 
+                  name="choice" 
+                  id="choice{{ forloop.counter }}" 
+                  value="{{ choice.id }}"
+                  required
+                >
+                <label for="choice{{ forloop.counter }}">
+                  {{ choice.choice_text }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="actions-footer" style="margin-top: 2rem;">
+          <button type="submit" class="btn-vote" onclick="logVoteActivity()" style="display:inline-flex; align-items:center; gap:6px;">
+            <i data-lucide="send" style="width: 16px; height: 16px;"></i> Cast My Vote
+          </button>
+          <a href="{% url 'polls:index' %}" class="btn-outline" style="display:inline-flex; align-items:center; gap:6px;">
+            <i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> All Polls
+          </a>
+          <a href="{% url 'polls:results' question.id %}" class="btn-outline" style="color: var(--primary); border-color: rgba(79,70,229,0.2); display:inline-flex; align-items:center; gap:6px;">
+            <i data-lucide="bar-chart-2" style="width: 15px; height: 15px;"></i> View Live Results
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Comments Section Box -->
+    <div class="glass-card comment-section-box reveal reveal-delay-2">
+      <h3 style="display:inline-flex; align-items:center; gap:6px;"><i data-lucide="message-square" style="width: 18px; height: 18px;"></i> Comments & Discussion</h3>
+      
+      <form class="comment-form" onsubmit="postUserComment(event)">
+        <textarea id="comment-textarea" placeholder="Share your insights on this poll..." required></textarea>
+        <button type="submit" class="btn-primary" style="font-size:0.85rem; padding: 10px 18px;">
+          Send
+        </button>
+      </form>
+
+      <div class="comment-list" id="comments-container">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Sidebar Metadata & QRious QR Codes -->
+  <div class="detail-sidebar reveal reveal-delay-1">
+    <!-- Scheduling & Countdown Card -->
+    <div class="glass-card sidebar-card float-animated">
+      <h4 class="sidebar-title" style="display:inline-flex; align-items:center; gap:6px;"><i data-lucide="clock" style="width: 14px; height: 14px;"></i> Time Remaining</h4>
+      <div class="countdown-box">
+        <div class="countdown-unit">
+          <div class="countdown-val" id="cd-hours">06</div>
+          <div class="countdown-lbl">hrs</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-val" id="cd-minutes">42</div>
+          <div class="countdown-lbl">min</div>
+        </div>
+        <div class="countdown-unit">
+          <div class="countdown-val" id="cd-seconds">15</div>
+          <div class="countdown-lbl">sec</div>
+        </div>
+      </div>
+      <p style="font-size: 0.75rem; text-align: center; color: var(--text-sec); margin-top: 10px; font-weight: 550;">
+        Auto-closes deterministically on next Sunday.
+      </p>
+    </div>
+
+    <!-- Social Actions Card -->
+    <div class="glass-card sidebar-card">
+      <h4 class="sidebar-title">Social Interactions</h4>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <button class="btn-outline" id="like-btn" onclick="toggleLike()" style="justify-content: flex-start; padding: 8px 12px; font-size: 0.82rem; width:100%; display:inline-flex; align-items:center; gap:8px;">
+          <i data-lucide="heart" style="width: 14px; height: 14px;"></i> <span id="like-lbl">Like Poll</span>
+        </button>
+        <button class="btn-outline" id="bookmark-btn" onclick="toggleBookmark()" style="justify-content: flex-start; padding: 8px 12px; font-size: 0.82rem; width:100%; display:inline-flex; align-items:center; gap:8px;">
+          <i data-lucide="bookmark" style="width: 14px; height: 14px;"></i> <span id="bookmark-lbl">Bookmark</span>
+        </button>
+        <button class="btn-outline" onclick="copyShareLink()" style="justify-content: flex-start; padding: 8px 12px; font-size: 0.82rem; width:100%; display:inline-flex; align-items:center; gap:8px;">
+          <i data-lucide="copy" style="width: 14px; height: 14px;"></i> Copy Share Link
+        </button>
+        <button class="btn-outline" style="justify-content: flex-start; padding: 8px 12px; font-size: 0.82rem; width:100%; border-color:rgba(239,68,68,0.2); color:var(--danger); display:inline-flex; align-items:center; gap:8px;" onclick="reportPoll()">
+          <i data-lucide="flag" style="width: 14px; height: 14px;"></i> Report Spam
+        </button>
+      </div>
+    </div>
+
+    <!-- QR Code Card -->
+    <div class="glass-card sidebar-card" style="text-align: center;">
+      <h4 class="sidebar-title">Scan to Vote on Mobile</h4>
+      <div class="qr-code-box">
+        <canvas id="qr-code-canvas"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Dynamic Poll Option Selection Helpers
+  function selectStandardChoice(element) {
+    const options = document.querySelectorAll('.choice-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+    
+    const radio = element.querySelector('input[type="radio"]');
+    if (radio) {
+      radio.checked = true;
+      element.classList.add('selected');
+    }
+  }
+
+  function selectRatingChoice(btn, choiceId) {
+    const buttons = document.querySelectorAll('.rating-btn');
+    buttons.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('rating-choice-input').value = choiceId;
+  }
+
+  function selectEmojiChoice(btn, choiceId) {
+    const buttons = document.querySelectorAll('.emoji-btn');
+    buttons.forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('emoji-choice-input').value = choiceId;
+  }
+
+  function selectImageChoice(card, choiceId) {
+    const cards = document.querySelectorAll('.image-choice-card');
+    cards.forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('image-choice-input').value = choiceId;
+  }
+
+  // Activity logger connection
+  function logVoteActivity() {
+    // Add XP to user progress
+    let XP = parseInt(localStorage.getItem('user_xp')) || 240;
+    XP = Math.min(300, XP + 30);
+    localStorage.setItem('user_xp', XP);
+
+    // Save activity
+    let logs = JSON.parse(localStorage.getItem('activity_logs')) || [];
+    logs.unshift({
+      action: 'Vote Cast',
+      details: 'Voted on poll "{{ question.question_text|escapejs }}".',
+      time: Date.now()
+    });
+    localStorage.setItem('activity_logs', JSON.stringify(logs));
+
+    // Save notification
+    let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    notifications.unshift({
+      id: Date.now(),
+      title: 'Vote Registered',
+      desc: 'Your vote on "{{ question.question_text|escapejs }}" is now live.',
+      time: Date.now()
+    });
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+  }
+
+  // Countdown timer script
+  document.addEventListener("DOMContentLoaded", function() {
+    let hrs = 6, mins = 42, secs = 15;
+    setInterval(() => {
+      secs--;
+      if (secs < 0) {
+        secs = 59;
+        mins--;
+        if (mins < 0) {
+          mins = 59;
+          hrs--;
+          if (hrs < 0) hrs = 23;
+        }
+      }
+      document.getElementById('cd-hours').textContent = String(hrs).padStart(2, '0');
+      document.getElementById('cd-minutes').textContent = String(mins).padStart(2, '0');
+      document.getElementById('cd-seconds').textContent = String(secs).padStart(2, '0');
+    }, 1000);
+  });
+
+  // Client QR Code generation using QRious
+  document.addEventListener("DOMContentLoaded", function() {
+    const qr = new QRious({
+      element: document.getElementById('qr-code-canvas'),
+      value: window.location.href,
+      size: 200,
+      background: '#ffffff',
+      foreground: '#0f172a'
+    });
+  });
+
+  // Like, Bookmark, Copy Link and Report Helpers
+  const qId = '{{ question.id }}';
+
+  function toggleLike() {
+    const isLiked = localStorage.getItem('liked_' + qId) === 'true';
+    if (isLiked) {
+      localStorage.setItem('liked_' + qId, 'false');
+      document.getElementById('like-btn').classList.remove('active');
+      document.getElementById('like-lbl').textContent = 'Like Poll';
+      showToast('Poll unliked.', 'success');
+    } else {
+      localStorage.setItem('liked_' + qId, 'true');
+      document.getElementById('like-btn').classList.add('active');
+      document.getElementById('like-lbl').textContent = 'Liked! ❤️';
+      showToast('Poll liked! Thank you.', 'success');
+    }
+  }
+
+  function toggleBookmark() {
+    const isBookmarked = localStorage.getItem('bookmarked_' + qId) === 'true';
+    if (isBookmarked) {
+      localStorage.setItem('bookmarked_' + qId, 'false');
+      document.getElementById('bookmark-lbl').textContent = 'Bookmark';
+      showToast('Bookmark removed.', 'success');
+    } else {
+      localStorage.setItem('bookmarked_' + qId, 'true');
+      document.getElementById('bookmark-lbl').textContent = 'Bookmarked 🔖';
+      showToast('Poll saved to your bookmarks.', 'success');
+    }
+  }
+
+  function copyShareLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      showToast('Share link copied to clipboard!', 'success');
+    }).catch(err => {
+      showToast('Failed to copy link.', 'error');
+    });
+  }
+
+  function reportPoll() {
+    showToast('Report submitted. Moderators will audit this poll shortly.', 'success');
+  }
+
+  // Comments Thread Javascript
+  function postUserComment(event) {
+    event.preventDefault();
+    const txtArea = document.getElementById('comment-textarea');
+    const commentText = txtArea.value.trim();
+    if (!commentText) return;
+
+    let comments = JSON.parse(localStorage.getItem('comments_' + qId)) || [
+      { author: 'admin', text: 'This question represents an important topic for planning.', time: Date.now() - 3600000 },
+      { author: 'saas_tester', text: 'Voted! Excited to see the results.', time: Date.now() - 1800000 }
+    ];
+
+    comments.unshift({
+      author: '{{ user.username }}',
+      text: commentText,
+      time: Date.now()
+    });
+
+    localStorage.setItem('comments_' + qId, JSON.stringify(comments));
+    txtArea.value = '';
+    renderComments();
+    showToast('Comment posted successfully!', 'success');
+  }
+
+  function renderComments() {
+    const container = document.getElementById('comments-container');
+    if (!container) return;
+
+    let comments = JSON.parse(localStorage.getItem('comments_' + qId)) || [
+      { author: 'admin', text: 'This question represents an important topic for planning.', time: Date.now() - 3600000 },
+      { author: 'saas_tester', text: 'Voted! Excited to see the results.', time: Date.now() - 1800000 }
+    ];
+
+    container.innerHTML = comments.map(c => {
+      const dt = new Date(c.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return `
+        <div class="comment-box">
+          <div class="comment-meta">
+            <span class="author">${c.author}</span>
+            <span>${dt}</span>
+          </div>
+          <div class="comment-text">${c.text}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Load comments, likes, and bookmarks status on load
+  document.addEventListener("DOMContentLoaded", function() {
+    renderComments();
+    
+    // Set liked label
+    if (localStorage.getItem('liked_' + qId) === 'true') {
+      document.getElementById('like-lbl').textContent = 'Liked! ❤️';
+    }
+    
+    // Set bookmarked label
+    if (localStorage.getItem('bookmarked_' + qId) === 'true') {
+      document.getElementById('bookmark-lbl').textContent = 'Bookmarked 🔖';
+    }
+  });
+</script>
+{% endblock %}

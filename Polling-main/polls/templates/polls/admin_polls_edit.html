@@ -1,0 +1,182 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Edit Poll — VoteHub{% endblock %}
+{% block breadcrumb %}<a href="{% url 'polls:admin_polls_list' %}" style="text-decoration:none; color:inherit;">Polls</a> &gt; Edit{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div style="margin-bottom:2rem;">
+  <h1 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:4px;">Edit Survey Program</h1>
+  <p style="color:var(--text-sec);font-size:0.88rem;">Update details, timing constraints, status or answer choices for this survey</p>
+</div>
+
+{% if form.non_field_errors %}
+  <div style="background:rgba(239,68,68,0.06); border:1.5px solid rgba(239,68,68,0.15); border-radius:8px; padding:1rem; margin-bottom:1.5rem; color:#EF4444; font-size:0.88rem;">
+    {% for err in form.non_field_errors %}
+      <div>{{ err }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form method="post" id="edit-poll-form" style="display:grid; grid-template-columns:1.3fr 0.7fr; gap:1.5rem; align-items:start;">
+  {% csrf_token %}
+
+  <!-- Left Column: Content Configuration -->
+  <div class="glass-card" style="padding:2rem; margin-bottom:0; display:flex; flex-direction:column; gap:1.25rem;">
+    <h3 style="font-family:var(--font-head); font-size:1.05rem; font-weight:800; border-bottom:1.5px solid var(--border); padding-bottom:10px; margin-bottom:0.5rem; display:flex; align-items:center; gap:8px;">
+      <i data-lucide="file-text" style="color:var(--primary); width:18px; height:18px;"></i>
+      Poll Content Details
+    </h3>
+
+    <!-- Poll Title -->
+    <div class="form-field">
+      <label for="{{ form.question_text.id_for_label }}" style="font-weight:700;">Poll Title / Question <span style="color:#EF4444;">*</span></label>
+      {{ form.question_text }}
+      {% if form.question_text.errors %}<p style="color:#EF4444; font-size:0.75rem; margin-top:4px;">{{ form.question_text.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Description -->
+    <div class="form-field">
+      <label for="{{ form.description.id_for_label }}" style="font-weight:700;">Description (Optional)</label>
+      {{ form.description }}
+      {% if form.description.errors %}<p style="color:#EF4444; font-size:0.75rem; margin-top:4px;">{{ form.description.errors.0 }}</p>{% endif %}
+    </div>
+
+    <!-- Answer Options (Choices) -->
+    <div class="form-field">
+      <label style="font-weight:700; margin-bottom:0.5rem; display:block;">Answer Options (Choices) <span style="color:#EF4444;">*</span></label>
+      
+      <div id="choices-container" style="display:flex; flex-direction:column; gap:10px;">
+        {% for choice in choices %}
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" name="choices" value="{{ choice }}" required style="flex:1; padding:0.65rem 0.75rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem;">
+            {% if forloop.counter > 1 %}
+              <button type="button" class="btn-outline" style="padding:10px; border-color:#EF4444; color:#EF4444; border-radius:var(--radius-xs); display:flex; align-items:center; justify-content:center;" onclick="this.parentElement.remove()">
+                <i data-lucide="x" style="width:14px; height:14px;"></i>
+              </button>
+            {% endif %}
+          </div>
+        {% empty %}
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" name="choices" placeholder="Answer Option 1" required style="flex:1; padding:0.65rem 0.75rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem;">
+          </div>
+        {% endfor %}
+      </div>
+
+      <button type="button" onclick="addChoiceInput()" class="btn-outline" style="margin-top:12px; font-size:0.78rem; padding:6px 12px; display:inline-flex; align-items:center; gap:4px; border-color:var(--primary); color:var(--primary);">
+        <i data-lucide="plus" style="width:13px; height:13px;"></i> Add Option
+      </button>
+    </div>
+  </div>
+
+  <!-- Right Column: Settings & Metadata -->
+  <div style="display:flex; flex-direction:column; gap:1.5rem;">
+    
+    <div class="glass-card" style="padding:1.5rem; margin-bottom:0; display:flex; flex-direction:column; gap:1.15rem;">
+      <h3 style="font-family:var(--font-head); font-size:1rem; font-weight:800; border-bottom:1.5px solid var(--border); padding-bottom:8px; margin-bottom:0.25rem;">
+        Settings
+      </h3>
+
+      <!-- Category -->
+      <div class="form-field">
+        <label for="{{ form.category.id_for_label }}" style="font-weight:600; font-size:0.82rem;">Category</label>
+        <div style="display:flex; gap:8px;">
+          <select name="category" id="{{ form.category.id_for_label }}" style="flex:1; padding:0.55rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem; background:#fff;">
+            <option value="">— Select Category —</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if form.category.value == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+          <a href="{% url 'polls:admin_polls_categories' %}" class="btn-outline" style="padding:0.55rem; font-size:0.85rem; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;" title="Manage Categories">
+            <i data-lucide="folder-plus" style="width:14px; height:14px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Poll Type -->
+      <div class="form-field">
+        <label for="{{ form.poll_type.id_for_label }}" style="font-weight:600; font-size:0.82rem;">Response Type</label>
+        <select name="poll_type" id="{{ form.poll_type.id_for_label }}" style="width:100%; padding:0.55rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem; background:#fff;">
+          <option value="single" {% if form.poll_type.value == 'single' %}selected{% endif %}>Single Choice (Radio Buttons)</option>
+          <option value="multiple" {% if form.poll_type.value == 'multiple' %}selected{% endif %}>Multiple Choice (Checkboxes)</option>
+        </select>
+      </div>
+
+      <!-- Visibility -->
+      <div class="form-field">
+        <label for="{{ form.visibility.id_for_label }}" style="font-weight:600; font-size:0.82rem;">Visibility</label>
+        <select name="visibility" id="{{ form.visibility.id_for_label }}" style="width:100%; padding:0.55rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem; background:#fff;">
+          <option value="public" {% if form.visibility.value == 'public' %}selected{% endif %}>Public (All registered voters)</option>
+          <option value="private" {% if form.visibility.value == 'private' %}selected{% endif %}>Private (Admin testing only)</option>
+        </select>
+      </div>
+
+      <!-- Start Date -->
+      <div class="form-field">
+        <label for="{{ form.start_date.id_for_label }}" style="font-weight:600; font-size:0.82rem;">Start Date/Time</label>
+        {{ form.start_date }}
+      </div>
+
+      <!-- End Date -->
+      <div class="form-field">
+        <label for="{{ form.end_date.id_for_label }}" style="font-weight:600; font-size:0.82rem;">End Date/Time</label>
+        {{ form.end_date }}
+      </div>
+
+      <!-- Status -->
+      <div class="form-field">
+        <label for="{{ form.status.id_for_label }}" style="font-weight:600; font-size:0.82rem;">Status Mode</label>
+        <select name="status" id="{{ form.status.id_for_label }}" style="width:100%; padding:0.55rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem; background:#fff; font-weight:700;">
+          <option value="draft" {% if form.status.value == 'draft' %}selected{% endif %} style="color:#F59E0B;">Draft</option>
+          <option value="active" {% if form.status.value == 'active' %}selected{% endif %} style="color:#22C55E;">Active</option>
+          <option value="closed" {% if form.status.value == 'closed' %}selected{% endif %} style="color:#EF4444;">Closed</option>
+          <option value="archived" {% if form.status.value == 'archived' %}selected{% endif %} style="color:var(--text-sec);">Archived</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="glass-card" style="padding:1.5rem; margin-bottom:0; display:flex; flex-direction:column; gap:10px;">
+      <button type="submit" class="btn-primary" style="width:100%; justify-content:center; padding:12px;">
+        <i data-lucide="check-circle" style="width:15px; height:15px; vertical-align:middle; margin-right:3px;"></i>
+        Update Survey
+      </button>
+      <a href="{% url 'polls:admin_polls_list' %}" class="btn-outline" style="width:100%; justify-content:center; text-decoration:none; padding:12px;">
+        Cancel
+      </a>
+    </div>
+
+  </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let choiceCount = {{ choices|length|default:1 }};
+  function addChoiceInput() {
+    choiceCount++;
+    const container = document.getElementById('choices-container');
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.gap = '10px';
+    div.style.alignItems = 'center';
+    
+    div.innerHTML = `
+      <input type="text" name="choices" placeholder="Answer Option ${choiceCount}" required style="flex:1; padding:0.65rem 0.75rem; border:1.5px solid var(--border); border-radius:var(--radius-xs); font-size:0.85rem;">
+      <button type="button" class="btn-outline" style="padding:10px; border-color:#EF4444; color:#EF4444; border-radius:var(--radius-xs); display:flex; align-items:center; justify-content:center;" onclick="this.parentElement.remove()">
+        <i data-lucide="x" style="width:14px; height:14px;"></i>
+      </button>
+    `;
+    
+    container.appendChild(div);
+    lucide.createIcons();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+  });
+</script>
+{% endblock %}

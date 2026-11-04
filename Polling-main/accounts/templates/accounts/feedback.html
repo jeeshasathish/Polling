@@ -1,0 +1,73 @@
+{% extends "polls/base.html" %}
+{% load static %}
+
+{% block title %}Share Feedback — VoteHub{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Custom star rating styles */
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .star-rating input {
+    display: none;
+  }
+  .star-rating label {
+    font-size: 2rem;
+    color: #E2E8F0;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .star-rating input:checked ~ label,
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: #F59E0B;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header reveal" style="text-align: left; margin-bottom: 3rem;">
+  <span class="eyebrow" style="background: rgba(79, 70, 229, 0.07); color: #4F46E5; padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; display: inline-block; margin-bottom: 0.75rem;">IMPROVE VOTEHUB</span>
+  <h1 style="font-family: var(--font-head); font-size: 2.25rem; font-weight: 800; color: var(--text); margin: 0 0 0.5rem 0;">Share Your Feedback</h1>
+  <p class="subtitle" style="color: var(--text-sec); font-size: 1rem; max-width: 600px;">Tell us about your experience using VoteHub. We read every response to continually optimize the platform.</p>
+</div>
+
+<div style="max-width: 640px; margin: 0 auto 3rem;">
+  <div style="background: #FFF; border: 1px solid var(--border); border-radius: 14px; padding: 2.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.015);">
+    <form method="post" action="{% url 'feedback' %}" style="display: flex; flex-direction: column; gap: 1.5rem;">
+      {% csrf_token %}
+      
+      <!-- Rating Stars -->
+      <div>
+        <label style="display: block; font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem;">How would you rate your overall experience?</label>
+        <div class="star-rating">
+          <input type="radio" id="star5" name="rating" value="5" />
+          <label for="star5" title="5 stars">&#9733;</label>
+          <input type="radio" id="star4" name="rating" value="4" />
+          <label for="star4" title="4 stars">&#9733;</label>
+          <input type="radio" id="star3" name="rating" value="3" />
+          <label for="star3" title="3 stars">&#9733;</label>
+          <input type="radio" id="star2" name="rating" value="2" />
+          <label for="star2" title="2 stars">&#9733;</label>
+          <input type="radio" id="star1" name="rating" value="1" />
+          <label for="star1" title="1 star">&#9733;</label>
+        </div>
+      </div>
+
+      <!-- Text Comments -->
+      <div>
+        <label for="id_comments" style="display: block; font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem;">Do you have any suggestions for improvement?</label>
+        <textarea name="comments" id="id_comments" rows="5" placeholder="Share your suggestions, feature requests, or report issues here..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; outline: none; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; font-size: 0.9rem; line-height: 1.5;" onfocus="this.style.borderColor='#4F46E5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'" onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none'"></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary" style="background: #4F46E5; box-shadow: 0 4px 14px rgba(79,70,229,0.2); padding: 0.85rem; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; color: #fff; cursor: pointer;">
+        <i data-lucide="check" style="width: 16px; height: 16px;"></i> Submit Feedback
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
