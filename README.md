@@ -1,8 +1,3 @@
-<img width="1246" height="614" alt="browse polls png" src="https://github.com/user-attachments/assets/32dc5733-0e9f-432b-a6c0-95da4e9b3a7f" />
-<img width="1322" height="641" alt="dashboard png" src="https://github.com/user-attachments/assets/26eca8c2-1e8a-4c58-ba50-a70a6abb397f" />
-<img width="1256" height="523" alt="how it works png" src="https://github.com/user-attachments/assets/e0f4ee2d-7a11-4a53-8b26-f757c4c3f2c8" />
-<img width="1242" height="512" alt="features png" src="https://github.com/user-attachments/assets/69b0b01d-4800-4fcb-8ffb-be92a484a25e" />
-<img width="1288" height="609" alt="home png" src="https://github.com/user-attachments/assets/7a40ca31-5349-45ad-81f8-712191fe1364" />
 # Django Polling Application
 
 ## 📌 Project Description
@@ -78,7 +73,11 @@ http://127.0.0.1:8000/
 
 ## 📸 Screenshots
 
-Screenshots of the application will be added here.
+<img width="1246" height="614" alt="browse polls png" src="https://github.com/user-attachments/assets/32dc5733-0e9f-432b-a6c0-95da4e9b3a7f" />
+<img width="1322" height="641" alt="dashboard png" src="https://github.com/user-attachments/assets/26eca8c2-1e8a-4c58-ba50-a70a6abb397f" />
+<img width="1256" height="523" alt="how it works png" src="https://github.com/user-attachments/assets/e0f4ee2d-7a11-4a53-8b26-f757c4c3f2c8" />
+<img width="1242" height="512" alt="features png" src="https://github.com/user-attachments/assets/69b0b01d-4800-4fcb-8ffb-be92a484a25e" />
+<img width="1288" height="609" alt="home png" src="https://github.com/user-attachments/assets/7a40ca31-5349-45ad-81f8-712191fe1364" />
 
 ## 👩‍💻 Developer
 **Jeesha Sathish**
